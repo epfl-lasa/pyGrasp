@@ -1,2 +1,4 @@
 wheel
 build
+roboticstoolbox-python
+ipython
