@@ -58,18 +58,24 @@ Here list of the features with low priority.
 
 ## Get Started
 
-### 1. Activate or create the virtual environment
+### Requirements
+- Python 3.9 or higher
 
-```
-# [KY]
-$ conda activate MyoSuite
+### Activate or create the virtual environment
+
+To setup the virtual environment, here is how it goes:
+```bash
+python3.9 -m venv .venv          # Create venv (use any python version you like >=3.9)
+source .venv/bin/activate        # Activate venv
+pip install -r requirements.txt  # Install package requirements
+python -m build                  # Build package
+pip install -e .                 # Install package. -e for editable, developer mode. 
 ```
 
-Otherwise, create the conda virtual environment from the `requirements.txt`:
-```
-conda create --name <env_name> --file requirements.txt
-```
+Or, for a faster onliner, you can use the following script
 
-Always register conda environment requirements to `requirements.txt` and `environment.yml`.
+```bash
+source setup_env.bash
+```
 
 ### Examples to test modules
