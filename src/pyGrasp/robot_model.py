@@ -100,9 +100,11 @@ class RobotModel(ERobot):
             for key, link in self._visu_urdf.link_map.items():
                 if len(link.visuals) > 0:
                     stl_file = link.visuals[0].geometry.mesh.filename
+                    mesh_origin = link.visuals[0].origin
                     self._visual_meshes[key] = trimesh.load_mesh(stl_file)
                     self._visual_meshes[key] = self._visual_meshes[key].process()
                     self._visual_meshes[key] = self._visual_meshes[key].smoothed()
+                    self._visual_meshes[key] = self._visual_meshes[key].apply_transform(mesh_origin)
         else:
             print("Can't load visual meshes before loading visual URDF")
 
@@ -114,8 +116,11 @@ class RobotModel(ERobot):
             
             # Check if the file exist
             save_file = pathlib.Path(self.name + "_" + key + ".pickle")
-            if not save_file.is_file() or force_recompute:
-            
+            if force_recompute or not save_file.is_file():
+                
+                if verbose:
+                    print(f"Computing geometry model for link {key}")
+                
                 cart_pts, _ = sample_surface_even(mesh, nb_learning_pts, seed=0)
 
                 # Switch from tuple to array and center mesh
@@ -142,6 +147,8 @@ class RobotModel(ERobot):
 
             # Load saved files
             else:
+                if verbose:
+                    print(f"Found {save_file}, loading...")
                 with open(str(save_file), 'rb') as fp:
                     self._learned_geometries[key] = pickle.load(fp)
 
@@ -185,7 +192,13 @@ class RobotModel(ERobot):
                         triangles=self._visual_meshes[link_name].faces,
                         alpha=0.5)      
 
-    def extended_fk(self, q,  mesh_theta: float, mesh_phi: float, base_link=None, tip_link=None) -> np.ndarray:
+    def extended_fk(self, 
+                    q: np.ndarray,
+                    mesh_theta: float,
+                    mesh_phi: float,
+                    base_link=None,
+                    tip_link=None,
+                    plot_result: bool = False) -> np.ndarray:
         
         if base_link is None:
             base_link = self.base_link
@@ -205,9 +218,44 @@ class RobotModel(ERobot):
         # Center back mesh coord
         cart_mesh_coord = cart_mesh_coord + self._visual_meshes[tip_link.name].center_mass
         
-        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-        ax.plot_trisurf(self._visual_meshes[tip_link.name].vertices[:, 0],
-                        self._visual_meshes[tip_link.name].vertices[:, 1],
-                        self._visual_meshes[tip_link.name].vertices[:, 2],
-                        triangles=self._visual_meshes.vertices.faces)
+        # Pass cart mesh to absolute
+        cart_mesh_coord_abs = np.dot(fk_result, np.concatenate((cart_mesh_coord, np.array([[1]])), axis=1).transpose())[0:3]
+        
+        if plot_result:
+            _, ax = plt.subplots(subplot_kw={"projection": "3d"})
+            self.plot_robot(q, ax=ax)
+            ax.quiver(0, 0, 0, [cart_mesh_coord_abs[0]], [cart_mesh_coord_abs[1]], [cart_mesh_coord_abs[2]], color='r', arrow_length_ratio=0.2, linewidths=2)
         plt.show()
+        
+        return cart_mesh_coord_abs
+        
+    def plot_robot(self, q: np.ndarray, ax=None) -> None:
+        
+        if ax is None:
+            _, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+        for key, mesh in self._visual_meshes.items():
+            
+            fkine = self.fkine(q, end=key, start=self.base_link)
+    
+            # Reduce mesh for smoother rendering
+            simplified_mesh = mesh.simplify_quadric_decimation(0.01 * mesh.faces.shape[0]) 
+            transformed_mesh = simplified_mesh.apply_transform(fkine)
+
+            ax.plot_trisurf(transformed_mesh.vertices[:, 0],
+                            transformed_mesh.vertices[:, 1],
+                            transformed_mesh.vertices[:, 2],
+                            triangles=transformed_mesh.faces, alpha=0.7)
+        
+        # Set axes limits
+        xlim = ax.axes.get_xlim3d()
+        ylim = ax.axes.get_ylim3d()
+        zlim = ax.axes.get_zlim3d()
+
+        lb = min([xlim[0], ylim[0], zlim[0]])
+        ub = max([xlim[1], ylim[1], zlim[1]])
+
+        ax.axes.set_xlim3d(lb, ub)
+        ax.axes.set_ylim3d(lb, ub)
+        ax.axes.set_zlim3d(lb, ub)
+    
