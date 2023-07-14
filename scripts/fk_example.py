@@ -16,11 +16,12 @@ def main() -> None:
 
     # Find an example URDF (iiwa7)
     here = os.path.dirname(__file__)
-    urdf_path = Path(here) / Path("../models/iiwa/urdf/iiwa7.urdf.xacro")
+    urdf_folder = Path(here) / Path("../models/iiwa/")
+    urdf_path = urdf_folder / Path("iiwa_description/urdf/iiwa7.urdf.xacro")
 
     # Load urdf
-    if urdf_path.is_file():
-        robot_model = RobotModel(urdf_path)
+    if urdf_folder.is_dir() and urdf_path.is_file():
+        robot_model = RobotModel(urdf_folder, urdf_path)
         print("Loaded robot model:")
         print(robot_model)
     else:
@@ -32,7 +33,7 @@ def main() -> None:
     link_goal_id = random.randint(link_origin_id + 1, robot_model.nlinks)
     link_origin = robot_model.links[link_origin_id]
     link_goal = robot_model.links[link_goal_id]
-
+    
     # Perform FK
     fk_result = robot_model.fkine(q_fk, link_goal, link_origin)
     fk_jacob = robot_model.jacobe(q_fk, link_goal, link_origin)
@@ -45,6 +46,9 @@ def main() -> None:
     print("SE3 transform matrix:\n", fk_result)
 
     print("Geometrical jacobian: \n", fk_jacob)
+    
+    # Plot FK
+    robot_model.plot(q_fk, backend='swift', block=True)
 
 
 if __name__ == "__main__":
