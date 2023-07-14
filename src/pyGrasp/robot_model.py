@@ -124,12 +124,6 @@ class RobotModel(ERobot):
             X = pol_vertices[:, 0:2]
             y = np.squeeze(pol_vertices[:, 2])
             
-            if key == "iiwa_link_0":
-                fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-                ax.scatter(np.squeeze(pol_vertices[:, 0]), np.squeeze(pol_vertices[:, 1]), np.squeeze(pol_vertices[:, 2]))
-                fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-                ax.scatter(np.squeeze(cart_pts_np[:, 0]), np.squeeze(cart_pts_np[:, 1]), np.squeeze(cart_pts_np[:, 2]))
-            
             # Learn the geometry
             self._learned_geometries[key] = GaussianProcessRegressor().fit(X, y)
 
@@ -146,11 +140,11 @@ class RobotModel(ERobot):
         
         plt.show()
     
-    def show_link_geometry(self, link_name: str, angluar_resolution: float = 0.05) -> None:
+    def show_link_geometry(self, link_name: str, angular_resolution: float = 0.1) -> None:
         
         # Bit of formatting in spherical coordinates
-        theta = np.arange(-np.pi, np.pi, angluar_resolution)
-        phi = np.arange(0, np.pi, angluar_resolution)
+        theta = np.arange(-np.pi, np.pi, angular_resolution)
+        phi = np.arange(0, np.pi, angular_resolution)
         theta_grid, phi_grid = np.meshgrid(theta, phi)
         theta_phi = np.array([theta_grid.flatten(), phi_grid.flatten()]).transpose()
     
@@ -162,14 +156,43 @@ class RobotModel(ERobot):
         cart_coord = RobotModel.pol_to_cart(pol_coord)
         
         # Format grid for plot
-        X = np.squeeze(cart_coord[:, 0])
-        Y = np.squeeze(cart_coord[:, 1])
-        Z = np.squeeze(cart_coord[:, 2])
+        X = np.squeeze(cart_coord[:, 0])+self._visual_meshes[link_name].center_mass[0]
+        Y = np.squeeze(cart_coord[:, 1])+self._visual_meshes[link_name].center_mass[1]
+        Z = np.squeeze(cart_coord[:, 2])+self._visual_meshes[link_name].center_mass[2]
         
         # Plot surface
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-        ax.scatter(X, Y, Z)
+        ax.scatter(X, Y, Z, c='#17becf')
+        ax.plot_trisurf(self._visual_meshes[link_name].vertices[:, 0],
+                        self._visual_meshes[link_name].vertices[:, 1],
+                        self._visual_meshes[link_name].vertices[:, 2],
+                        triangles=self._visual_meshes[link_name].faces,
+                        alpha=0.5)
+        
+
+    def extended_fk(self, q,  mesh_theta: float, mesh_phi: float, base_link=None, tip_link=None) -> np.ndarray:
+        
+        if base_link is None:
+            base_link = self.base_link
+            
+        if tip_link is None:
+            tip_link = self.links[-1]
+        
+        # Perform forward kinematic to link
+        fk_result = self.fkine(q, tip_link, base_link)
+        
+        # Predict mesh rho
+        mesh_rho = self._learned_geometries[tip_link.name].predict(np.array([[mesh_theta, mesh_phi]]))
+
+        # Get mesh cartesian coordinates
+        cart_mesh_coord = RobotModel.pol_to_cart(np.array([[mesh_theta, mesh_phi, mesh_rho[0]]]))
+        
+        # Center back mesh coord
+        cart_mesh_coord = cart_mesh_coord + self._visual_meshes[tip_link.name].center_mass
         
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-        ax.scatter(np.squeeze(pol_coord[:, 0]), np.squeeze(pol_coord[:, 1]), np.squeeze(pol_coord[:, 2]))
-        
+        ax.plot_trisurf(self._visual_meshes[tip_link.name].vertices[:, 0],
+                        self._visual_meshes[tip_link.name].vertices[:, 1],
+                        self._visual_meshes[tip_link.name].vertices[:, 2],
+                        triangles=self._visual_meshes.vertices.faces)
+        plt.show()
