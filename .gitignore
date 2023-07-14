@@ -130,3 +130,6 @@ dmypy.json
 
 # VScode stuff
 .vscode/
+
+# File format used to cache different robot options
+*.pickle

@@ -29,7 +29,7 @@ def main() -> None:
         raise FileNotFoundError(f"URDF provided is not a valid file path: {urdf_path}")
 
     # Learning robot geometry and plot
-    robot_model.learn_geometry(nb_learning_pts=5000, verbose=True)
+    robot_model.learn_geometry(nb_learning_pts=10000, verbose=True, force_recompute=True)
     robot_model.show_geometries()
 
 

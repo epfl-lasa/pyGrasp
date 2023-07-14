@@ -10,6 +10,7 @@ import random
 from math import atan2, sqrt, sin, cos
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+import pickle
 
 from yourdfpy import URDF
 from roboticstoolbox.robot.ERobot import ERobot
@@ -105,35 +106,50 @@ class RobotModel(ERobot):
         else:
             print("Can't load visual meshes before loading visual URDF")
 
-    def learn_geometry(self, nb_learning_pts: int = 5000, verbose: bool = False) -> None:
+    def learn_geometry(self, nb_learning_pts: int = 5000, force_recompute: bool = False, verbose: bool = False) -> None:
 
         print("Learning geometries")
         training_scores = []
         for key, mesh in tqdm(self._visual_meshes.items()):
-            cart_pts, _ = sample_surface_even(mesh, nb_learning_pts, seed=0)
-
-            # Switch from tuple to array and certer mesh
-            cart_pts_np = np.full((nb_learning_pts, 3), np.nan)
-            for i in range(nb_learning_pts):
-                cart_pts_np[i, 0] = cart_pts[i][0] - mesh.center_mass[0]
-                cart_pts_np[i, 1] = cart_pts[i][1] - mesh.center_mass[1]
-                cart_pts_np[i, 2] = cart_pts[i][2] - mesh.center_mass[2]
             
-            # From cart to pol
-            pol_vertices = RobotModel.cart_to_pol(cart_pts_np)
-            X = pol_vertices[:, 0:2]
-            y = np.squeeze(pol_vertices[:, 2])
+            # Check if the file exist
+            save_file = pathlib.Path(self.name + "_" + key + ".pickle")
+            if not save_file.is_file() or force_recompute:
             
-            # Learn the geometry
-            self._learned_geometries[key] = GaussianProcessRegressor().fit(X, y)
+                cart_pts, _ = sample_surface_even(mesh, nb_learning_pts, seed=0)
 
-            if verbose:
-                training_scores.append(self._learned_geometries[key].score(X, y))
+                # Switch from tuple to array and center mesh
+                cart_pts_np = np.full((nb_learning_pts, 3), np.nan)
+                for i in range(nb_learning_pts):
+                    cart_pts_np[i, 0] = cart_pts[i][0] - mesh.center_mass[0]
+                    cart_pts_np[i, 1] = cart_pts[i][1] - mesh.center_mass[1]
+                    cart_pts_np[i, 2] = cart_pts[i][2] - mesh.center_mass[2]
+                
+                # From cart to pol
+                pol_vertices = RobotModel.cart_to_pol(cart_pts_np)
+                X = pol_vertices[:, 0:2]
+                y = np.squeeze(pol_vertices[:, 2])
+                
+                # Learn the geometry
+                self._learned_geometries[key] = GaussianProcessRegressor().fit(X, y)
 
-        if verbose:
+                if verbose:
+                    training_scores.append(self._learned_geometries[key].score(X, y))
+                
+                # Save learned model
+                with open(str(save_file), 'wb') as fp:
+                    pickle.dump(self._learned_geometries[key], fp, protocol=pickle.HIGHEST_PROTOCOL)
+
+            # Load saved files
+            else:
+                with open(str(save_file), 'rb') as fp:
+                    self._learned_geometries[key] = pickle.load(fp)
+
+        # Display results
+        if verbose and len(training_scores) > 0:
             for i, key in enumerate(self._learned_geometries.keys()):
                 print(f"Training score for {key}: {training_scores[i]}")
-            
+        
     def show_geometries(self) -> None:
         for key in self._learned_geometries.keys():
             self.show_link_geometry(key)
@@ -167,8 +183,7 @@ class RobotModel(ERobot):
                         self._visual_meshes[link_name].vertices[:, 1],
                         self._visual_meshes[link_name].vertices[:, 2],
                         triangles=self._visual_meshes[link_name].faces,
-                        alpha=0.5)
-        
+                        alpha=0.5)      
 
     def extended_fk(self, q,  mesh_theta: float, mesh_phi: float, base_link=None, tip_link=None) -> np.ndarray:
         
