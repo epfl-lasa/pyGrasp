@@ -33,7 +33,7 @@ def main() -> None:
     link_goal_id = random.randint(link_origin_id + 1, robot_model.nlinks)
     link_origin = robot_model.links[link_origin_id]
     link_goal = robot_model.links[link_goal_id]
-    
+
     # Perform FK
     fk_result = robot_model.fkine(q_fk, link_goal, link_origin)
     fk_jacob = robot_model.jacobe(q_fk, link_goal, link_origin)
