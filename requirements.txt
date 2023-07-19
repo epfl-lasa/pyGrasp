@@ -4,7 +4,6 @@ roboticstoolbox-python
 ipython
 matplotlib
 yourdfpy
-tempfile
 trimesh
 pyglet==1.5.27
 scikit-learn
