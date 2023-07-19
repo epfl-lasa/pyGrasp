@@ -79,3 +79,11 @@ source setup_env.bash
 ```
 
 ### Examples to test modules
+
+Once the environment is setup, you can try running the following scripts:
+
+```bash
+python scripts/example_fk.py                 # Run an example of simple forward kinematics
+python scripts/example_learning_geometry.py  # Run an example of a robot learning its links geometry and displays results
+python scripts/example_extended_fk.py        # Run an example of the forward kinematics to an arbitrary point on the robot
+```
