@@ -254,13 +254,15 @@ class RobotModel(ERobot):
             for key, link in self._visu_urdf.link_map.items():
                 if len(link.visuals) > 0:
                     stl_file = link.visuals[0].geometry.mesh.filename
-                    mesh_origin = link.visuals[0].origin
                     self._visual_meshes[key] = trimesh.load_mesh(stl_file)
                     self._visual_meshes[key] = self._visual_meshes[key].process()
                     self._visual_meshes[key] = self._visual_meshes[key].smoothed()
-                    self._visual_meshes[key] = self._visual_meshes[key].apply_transform(mesh_origin)
+                    
+                    # Set the link at it's origin point if needed
+                    if link.visuals[0].origin is not None:
+                        self._visual_meshes[key] = self._visual_meshes[key].apply_transform(link.visuals[0].origin)
         else:
-            print("Can't load visual meshes before loading visual URDF")    
+            print("Can't load visual meshes before loading visual URDF")
 
     def _load_visual_urdf(self) -> None:
         """
