@@ -4,8 +4,26 @@ from pathlib import Path
 import os
 import numpy as np
 import random
+from collections import namedtuple
 
 from pyGrasp.robot_model import RobotModel
+
+
+UrdfPath = namedtuple("UrdfPath", ["folder", "file_path"])
+
+
+# All availabel robot with their path descriptions
+IIWA7_URDF_PATH = UrdfPath(folder=Path("../models/iiwa/"),
+                           file_path=Path("iiwa_description/urdf/iiwa7.urdf.xacro"))
+IIWA14_URDF_PATH = UrdfPath(folder=Path("../models/iiwa/"),
+                            file_path=Path("iiwa_description/urdf/iiwa14.urdf.xacro"))
+ALLEGRO_LEFT_URDF_PATH = UrdfPath(folder=Path("../models/allegro/"),
+                                  file_path=Path("allegro_hand_description/allegro_hand_description_left.urdf"))
+ALLEGRO_RIGHT_URDF_PATH = UrdfPath(folder=Path("../models/allegro/"),
+                                   file_path=Path("allegro_hand_description/allegro_hand_description_right.urdf"))
+
+# Choose your example robot here
+SELECTED_ROBOT = ALLEGRO_RIGHT_URDF_PATH
 
 
 def main() -> None:
@@ -16,8 +34,8 @@ def main() -> None:
 
     # Find an example URDF (iiwa7)
     here = os.path.dirname(__file__)
-    urdf_folder = Path(here) / Path("../models/iiwa/")
-    urdf_path = urdf_folder / Path("iiwa_description/urdf/iiwa7.urdf.xacro")
+    urdf_folder = Path(here) / SELECTED_ROBOT.folder
+    urdf_path = urdf_folder / SELECTED_ROBOT.file_path
 
     # Load urdf
     if urdf_folder.is_dir() and urdf_path.is_file():
@@ -29,8 +47,8 @@ def main() -> None:
 
     # Select random joints and angles for FK
     q_fk = np.array([random.uniform(q_min, q_max) for (q_min, q_max) in robot_model.qlim.transpose()])
-    link_origin_id = random.randint(0, robot_model.nlinks-1)
-    link_goal_id = random.randint(link_origin_id + 1, robot_model.nlinks)
+    link_origin_id = random.randint(0, robot_model.nlinks-2)
+    link_goal_id = random.randint(link_origin_id + 1, robot_model.nlinks-1)
     link_origin = robot_model.links[link_origin_id]
     link_goal = robot_model.links[link_goal_id]
 
