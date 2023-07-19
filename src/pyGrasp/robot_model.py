@@ -86,29 +86,19 @@ class RobotModel(ERobot):
         # Learned geometries
         self._learned_geometries = {}
 
-    def _load_visual_urdf(self) -> None:
-
-        # Load the file with yourdfpy
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            tmp_urdf = pathlib.Path(tmpdirname) / "tmp_urdf.urdf"
-            with open(tmp_urdf, "w") as tmpf:
-                tmpf.write(self._urdf_str)
-            self._visu_urdf = URDF.load(tmp_urdf)
-
-    def _load_visual_meshes(self) -> None:
-        if self._visu_urdf is not None:
-            for key, link in self._visu_urdf.link_map.items():
-                if len(link.visuals) > 0:
-                    stl_file = link.visuals[0].geometry.mesh.filename
-                    mesh_origin = link.visuals[0].origin
-                    self._visual_meshes[key] = trimesh.load_mesh(stl_file)
-                    self._visual_meshes[key] = self._visual_meshes[key].process()
-                    self._visual_meshes[key] = self._visual_meshes[key].smoothed()
-                    self._visual_meshes[key] = self._visual_meshes[key].apply_transform(mesh_origin)
-        else:
-            print("Can't load visual meshes before loading visual URDF")
-
     def learn_geometry(self, nb_learning_pts: int = 5000, force_recompute: bool = False, verbose: bool = False) -> None:
+        """
+        Learn the geometry of the visual meshes using GPR in spherical coordinates. 
+        By default loads the model for an existing file if it exists. Else learns a new one and saves it.
+
+        Args:
+            nb_learning_pts (int, optional): The number of points to sample on the mesh for learning. Default: 5000.
+            force_recompute (bool, optional): Whether to force recomputing the geometry model. Default: False.
+            verbose (bool, optional): Whether to display verbose output. Defaults to False.
+
+        Returns:
+            None
+        """
 
         print("Learning geometries")
         training_scores = []
@@ -156,7 +146,7 @@ class RobotModel(ERobot):
         if verbose and len(training_scores) > 0:
             for i, key in enumerate(self._learned_geometries.keys()):
                 print(f"Training score for {key}: {training_scores[i]}")
-        
+            
     def show_geometries(self) -> None:
         for key in self._learned_geometries.keys():
             self.show_link_geometry(key)
@@ -192,14 +182,14 @@ class RobotModel(ERobot):
                         triangles=self._visual_meshes[link_name].faces,
                         alpha=0.5)      
 
-    def extended_fk(self, 
+    def extended_fk(self,
                     q: np.ndarray,
                     mesh_theta: float,
                     mesh_phi: float,
                     base_link=None,
                     tip_link=None,
                     plot_result: bool = False) -> np.ndarray:
-        
+
         if base_link is None:
             base_link = self.base_link
             
@@ -258,4 +248,29 @@ class RobotModel(ERobot):
         ax.axes.set_xlim3d(lb, ub)
         ax.axes.set_ylim3d(lb, ub)
         ax.axes.set_zlim3d(lb, ub)
-    
+
+    def _load_visual_meshes(self) -> None:
+        if self._visu_urdf is not None:
+            for key, link in self._visu_urdf.link_map.items():
+                if len(link.visuals) > 0:
+                    stl_file = link.visuals[0].geometry.mesh.filename
+                    mesh_origin = link.visuals[0].origin
+                    self._visual_meshes[key] = trimesh.load_mesh(stl_file)
+                    self._visual_meshes[key] = self._visual_meshes[key].process()
+                    self._visual_meshes[key] = self._visual_meshes[key].smoothed()
+                    self._visual_meshes[key] = self._visual_meshes[key].apply_transform(mesh_origin)
+        else:
+            print("Can't load visual meshes before loading visual URDF")    
+
+    def _load_visual_urdf(self) -> None:
+        """
+        Loads a URDF to use late the visual meshes of it.
+        """
+
+        # Load the file with yourdfpy
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            tmp_urdf = pathlib.Path(tmpdirname) / "tmp_urdf.urdf"
+            with open(tmp_urdf, "w") as tmpf:
+                tmpf.write(self._urdf_str)
+            self._visu_urdf = URDF.load(tmp_urdf)
+        
