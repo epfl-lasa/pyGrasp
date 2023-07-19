@@ -229,7 +229,11 @@ class RobotModel(ERobot):
             fkine = self.fkine(q, end=key, start=self.base_link)
     
             # Reduce mesh for smoother rendering
-            simplified_mesh = mesh.simplify_quadric_decimation(0.01 * mesh.faces.shape[0]) 
+            if mesh.faces.shape[0] > 200:
+                simplified_mesh = mesh.simplify_quadric_decimation(0.01 * mesh.faces.shape[0]) 
+            else:
+                simplified_mesh = mesh
+
             transformed_mesh = simplified_mesh.apply_transform(fkine)
 
             ax.plot_trisurf(transformed_mesh.vertices[:, 0],
