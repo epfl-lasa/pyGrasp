@@ -6,7 +6,6 @@ import tempfile
 import trimesh
 from trimesh.sample import sample_surface_even
 import numpy as np
-import random
 from math import atan2, sqrt, sin, cos
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -60,9 +59,6 @@ class RobotModel(ERobot):
     def __init__(self, description_folder: tp.Union[str, pathlib.Path],
                  description_file: tp.Union[str, pathlib.Path]) -> None:
 
-        # For reproducibility
-        random.seed(0)
-
         # Handle typing and path resolution
         if isinstance(description_folder, str):
             description_folder = pathlib.Path(description_folder)
@@ -71,8 +67,10 @@ class RobotModel(ERobot):
         description_folder = description_folder.resolve()
         description_file = description_file.resolve()
 
+        # Create rtb robot model
         (e_links, name, self._urdf_str, self._file_path) = ERobot.URDF_read(description_file, tld=description_folder)
         super().__init__(e_links, name=name)
+        self._define_qz()  # define a zero position
 
         # Normalise URDF string
         self._urdf_str = self._urdf_str.replace("package:/", str(description_folder))
@@ -253,6 +251,17 @@ class RobotModel(ERobot):
         ax.axes.set_ylim3d(lb, ub)
         ax.axes.set_zlim3d(lb, ub)
 
+    def qz(self) -> np.ndarray:
+        """Shortcut to get qz form the robot model
+
+        Returns:
+            np.ndarray: q zero
+        """
+        if 'qz' not in self.configs:
+            self._define_qz()
+
+        return self.configs['qz']
+
     def _load_visual_meshes(self) -> None:
         if self._visu_urdf is not None:
             for key, link in self._visu_urdf.link_map.items():
@@ -279,4 +288,14 @@ class RobotModel(ERobot):
             with open(tmp_urdf, "w") as tmpf:
                 tmpf.write(self._urdf_str)
             self._visu_urdf = URDF.load(tmp_urdf)
-        
+
+    def _define_qz(self) -> None:
+        qz = np.zeros((self.n))
+
+        # Adjust qz if not within joint limits
+        for i in range(self.n):
+
+            if qz[i] < self.qlim[0, i] or qz[i] > self.qlim[1, i]:
+                qz[i] = self.qlim[0, i] + (self.qlim[1, i] - self.qlim[0, i])/2
+
+        self.addconfiguration('qz', qz)
