@@ -25,7 +25,7 @@ ALLEGRO_RIGHT_URDF_PATH = UrdfPath(folder=Path("../models/allegro/"),
                                    file_path=Path("allegro_hand_description/allegro_hand_description_right.urdf"))
 
 # Choose your example robot here
-SELECTED_ROBOT = ALLEGRO_RIGHT_URDF_PATH
+SELECTED_ROBOT = IIWA7_URDF_PATH
 
 
 def main() -> None:
@@ -51,7 +51,7 @@ def main() -> None:
     robot_model.learn_geometry(verbose=True)
 
     # Select random joints and angles for FK
-    q_fk = np.array([random.uniform(q_min, q_max) for (q_min, q_max) in robot_model.qlim.transpose()])
+    q_fk = robot_model.random_q()
     link_goal_id = random.randint(1, robot_model.nlinks)
     link_goal = robot_model.links[link_goal_id]
     theta = random.uniform(-np.pi, np.pi)

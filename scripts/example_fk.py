@@ -23,7 +23,7 @@ ALLEGRO_RIGHT_URDF_PATH = UrdfPath(folder=Path("../models/allegro/"),
                                    file_path=Path("allegro_hand_description/allegro_hand_description_right.urdf"))
 
 # Choose your example robot here
-SELECTED_ROBOT = ALLEGRO_RIGHT_URDF_PATH
+SELECTED_ROBOT = IIWA7_URDF_PATH
 
 
 def main() -> None:
@@ -46,12 +46,12 @@ def main() -> None:
         raise FileNotFoundError(f"URDF provided is not a valid file path: {urdf_path}")
 
     # Select random joints and angles for FK
-    q_fk = np.array([random.uniform(q_min, q_max) for (q_min, q_max) in robot_model.qlim.transpose()])
+    q_fk = robot_model.random_q()
     link_origin_id = random.randint(0, robot_model.nlinks-2)
     link_goal_id = random.randint(link_origin_id + 1, robot_model.nlinks-1)
     link_origin = robot_model.links[link_origin_id]
     link_goal = robot_model.links[link_goal_id]
-
+    
     # Perform FK
     fk_result = robot_model.fkine(q_fk, link_goal, link_origin)
     fk_jacob = robot_model.jacobe(q_fk, link_goal, link_origin)
