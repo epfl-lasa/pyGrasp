@@ -6,7 +6,7 @@ import random
 from collections import namedtuple
 
 from pyGrasp.robot_model import RobotModel
-from pyGrasp.reachable_spaces import ReachableSpaces
+from pyGrasp.reachable_spaces import ReachableSpace
 
 
 UrdfPath = namedtuple("UrdfPath", ["folder", "file_path"])
@@ -23,7 +23,7 @@ ALLEGRO_RIGHT_URDF_PATH = UrdfPath(folder=Path("../models/allegro/"),
                                    file_path=Path("allegro_hand_description/allegro_hand_description_right.urdf"))
 
 # Choose your example robot here
-SELECTED_ROBOT = ALLEGRO_LEFT_URDF_PATH
+SELECTED_ROBOT = IIWA7_URDF_PATH
 
 
 def main() -> None:
@@ -46,9 +46,9 @@ def main() -> None:
         raise FileNotFoundError(f"URDF provided is not a valid file path: {urdf_path}")
     
     # Create reachable space
-    reachable_space = ReachableSpaces(robot_model)
-    reachable_space.compute()
-    breakpoint()
+    rs = ReachableSpace(robot_model)
+    rs.compute(verbose=True)
+    # breakpoint()
 
 
 if __name__ == "__main__":

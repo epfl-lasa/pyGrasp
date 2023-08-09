@@ -2,8 +2,8 @@
 """
 from pathlib import Path
 import os
-import numpy as np
 import random
+import numpy as np
 import matplotlib.pyplot as plt
 from collections import namedtuple
 
@@ -47,7 +47,7 @@ def main() -> None:
     else:
         raise FileNotFoundError(f"URDF provided is not a valid file path: {urdf_path}")
 
-    # Explicitely ask to learn geometries
+    # Explicitly ask to learn geometries
     robot_model.learn_geometry(verbose=True)
 
     # Select random joints and angles for FK

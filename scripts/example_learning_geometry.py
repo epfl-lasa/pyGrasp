@@ -25,7 +25,7 @@ ALLEGRO_RIGHT_URDF_PATH = UrdfPath(folder=Path("../models/allegro/"),
                                    file_path=Path("allegro_hand_description/allegro_hand_description_right.urdf"))
 
 # Choose your example robot here
-SELECTED_ROBOT = ALLEGRO_RIGHT_URDF_PATH
+SELECTED_ROBOT = IIWA7_URDF_PATH
 
 
 def main() -> None:

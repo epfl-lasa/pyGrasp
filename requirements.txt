@@ -9,3 +9,4 @@ pyglet==1.5.27
 scikit-learn
 tqdm
 open3d
+alphashape
