@@ -10,34 +10,6 @@ from .tools.alphashape import alphashape, circumradius
 from .robot_model import RobotModel
 
 
-# TODO: The whole link map thing is a bit convoluted... maybe solve it at some point?
-
-"""
- Here is what we do for a reachable spaces:
-
-    
-    # Resolve all links
-    current_link = base_link
-    while base_link not resolved:
-        
-        if current_link not resolved 
-            if not current_link.all_descendence_resolved:
-                current_link = furthest_unresolved_descendent
-            else:
-                compute current link reachable space as alpha shape
-                propagate link movement on the children 
-    
-    
-    # Resolve and propagate link
-    for angle in joint_angle_list:
-        move_robot to position with every angle to 0 but angle
-        get mesh of current node
-        get mesh of children at their place
-        
-                        
-"""
-
-
 @dataclass
 class LinkInfo:
     name: str
@@ -51,8 +23,8 @@ class LinkInfo:
 
 class ReachableSpace:
 
-    MAX_ALPHA_FACES = 5000
-    BASE_ALPHA_FACES = 1000
+    MAX_ALPHA_FACES = 1000
+    BASE_ALPHA_FACES = 200
     
     @staticmethod
     def _find_max_alpha(mesh: trimesh.Trimesh) -> float:
@@ -110,11 +82,9 @@ class ReachableSpace:
             if all_children_solved:
                 print(f"Solving for link: {current_link_info.name} ({nb_link_solved+1}/{len(self._link_map)})")
                 self._solve_link(current_link_info, angle_list)
-                #self._propagate_link(current_link_info, angle_list)
+                self._propagate_link(current_link_info, angle_list)
                 current_link_info = base_link_info   # TODO: Double chained link would allow us to be faster here
                 nb_link_solved += 1
-        
-        breakpoint()
     
     def show_rs(self, link_name: str) -> None:
         
@@ -127,6 +97,13 @@ class ReachableSpace:
                         triangles=mesh.faces, alpha=0.7)
         self.robot_model.plot_robot(alpha=1., ax=ax)
     
+    def show_all_rs(self) -> None:
+
+        for link_name in self._rs_map.keys():
+            self.show_rs(link_name)
+        
+        plt.show()
+
     def _solve_link(self, link_info: LinkInfo, angle_list: tp.List[np.ndarray]) -> None:
         
         q_test = self.robot_model.qz()
@@ -147,15 +124,12 @@ class ReachableSpace:
                     vertices_list = np.empty([nb_vertices * len(angle_list[link_info.joint_id]), 3])
                 
                 if link_info.alpha is None:
-                    link_info.alpha = self._find_max_alpha(new_mesh)
+                    link_info.alpha = self._find_max_alpha(new_mesh) / 1.
 
                 vertices_list[i * nb_vertices:(i+1) * nb_vertices, :] = new_mesh.vertices
 
             # Compute alpha shape
             self._rs_map[link_info.name] = alphashape(vertices_list, link_info.alpha)
-            
-            msh = self._rs_map[link_info.name].copy()
-            self.robot_model.sanitize_mesh(msh, fill_holes=False)
             
         # Link has no joint that directly moves it. So RS is link geometry
         elif self.robot_model.link_has_visual(link_info.name):     # TODO: Can't really think straight on how to handle the base link with no visual properly. TBD
@@ -169,16 +143,17 @@ class ReachableSpace:
         """Propagating link deformation to all children of the current link
         """
 
-        # Skip if no joint is directly connected to the parent link
-        # TODO: That's a mistake we need to take into account multiple links without any actuators between them
+        # Skip if no joint is directly connected to parent link. We'll get it later
         if parent_link_info.joint_id is not None:
+            
+            # Get all children of link
+            link_children = self._get_link_children(parent_link_info.name)
 
-            previous_link_info = parent_link_info
 
-            while len(previous_link_info.children_names):
+            for next_link_name in link_children:
 
                 # Get link to propagate to
-                next_link_info = self._link_map[previous_link_info.children_names[0]]
+                next_link_info = self._link_map[next_link_name]
                 
                 # Decimate RS if we estimate it is too big for propagation
                 if self._rs_map[next_link_info.name].faces.shape[0] > self.MAX_ALPHA_FACES:
@@ -204,9 +179,6 @@ class ReachableSpace:
                     vertices_list[i * nb_vertices:(i+1) * nb_vertices, :] = new_rs.vertices
                 
                 self._rs_map[next_link_info.name] = alphashape(vertices_list, next_link_info.alpha)
-                
-                # Move one link further
-                previous_link_info = next_link_info
         
     def _create_link_map(self) -> None:
         """Generate a dictionary of links and their children to be able to brows them from base to tip
@@ -247,3 +219,26 @@ class ReachableSpace:
                 else:
                     self._link_map[link.parent.name].children_id.append(i)
                     self._link_map[link.parent.name].children_names.append(link.name)
+
+    def _get_link_children(self, link_name: str) -> tp.List[str]:
+
+        parent_link_info = self._link_map[link_name]
+
+        children_list = parent_link_info.children_names
+
+        # This isn't super effective but makes for simpler code
+        added_new_child = True
+        while added_new_child:
+
+            added_new_child = False
+            for child_name in children_list:
+                
+                for grand_child_name in self._link_map[child_name].children_names:
+                    
+                    if grand_child_name not in children_list:
+                        children_list.append(grand_child_name)
+                        added_new_child = True
+
+
+
+        return children_list

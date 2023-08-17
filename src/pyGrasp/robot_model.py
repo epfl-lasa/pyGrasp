@@ -25,7 +25,7 @@ class RobotModel(ERobot):
     def sanitize_mesh(mesh: trimesh.Trimesh, fill_holes=True) -> None:
         
         mesh.process()
-        mesh.update_faces(mesh.unique_faces())
+        # mesh.update_faces(mesh.unique_faces())
         # mesh.update_faces(mesh.nondegenerate_faces())
         mesh.remove_unreferenced_vertices()
         mesh.merge_vertices()

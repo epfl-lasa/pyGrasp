@@ -48,7 +48,10 @@ def main() -> None:
     # Create reachable space
     rs = ReachableSpace(robot_model)
     rs.compute(verbose=True)
-    # breakpoint()
+    
+
+    # Show all rs to check
+    rs.show_all_rs()
 
 
 if __name__ == "__main__":
