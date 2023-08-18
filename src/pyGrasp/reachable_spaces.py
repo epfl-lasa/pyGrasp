@@ -55,7 +55,7 @@ class ReachableSpace:
         self._link_map = {}   # Key = link, value = LinkInfo
         self._rs_map = {}
     
-    def compute(self, angle_step: float = .01, verbose=False) -> None:
+    def compute_rs(self, angle_step: float = .01, verbose=False) -> None:
 
         # Generate link map
         if not self._link_map:

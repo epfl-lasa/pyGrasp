@@ -47,7 +47,7 @@ def main() -> None:
     
     # Create reachable space
     rs = ReachableSpace(robot_model)
-    rs.compute(verbose=True)
+    rs.compute_rs(verbose=True)
     
 
     # Show all rs to check
