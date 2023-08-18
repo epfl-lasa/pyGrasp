@@ -4,7 +4,8 @@ import numpy as np
 from tqdm import tqdm
 from trimesh.boolean import union
 import trimesh
-import matplotlib.pyplot as plt
+import pathlib
+import pickle
 
 from .tools.alphashape import alphashape, circumradius
 from .robot_model import RobotModel
@@ -18,6 +19,8 @@ class LinkInfo:
     joint_id: tp.Optional[int]
     children_id: list[int]
     children_names: list[str]
+    parent_id: int
+    parent_name: tp.Optional[str]
     alpha: tp.Optional[float]
 
 
@@ -55,7 +58,7 @@ class ReachableSpace:
         self._link_map = {}   # Key = link, value = LinkInfo
         self._rs_map = {}
     
-    def compute_rs(self, angle_step: float = .01, verbose=False) -> None:
+    def compute_rs(self, angle_step: float = .01, force_recompute: bool = False) -> None:
 
         # Generate link map
         if not self._link_map:
@@ -80,29 +83,49 @@ class ReachableSpace:
                     break
                     
             if all_children_solved:
-                print(f"Solving for link: {current_link_info.name} ({nb_link_solved+1}/{len(self._link_map)})")
-                self._solve_link(current_link_info, angle_list)
-                self._propagate_link(current_link_info, angle_list)
+                rs_file = pathlib.Path(self.robot_model.name + "_" + current_link_info.name + "_rs" + ".pickle")
+                
+                # Load a file if we find one
+                if rs_file.is_file() and not force_recompute and self.robot_model.link_has_visual(current_link_info.name):
+                    print(f"Loading for link: {current_link_info.name} ({nb_link_solved+1}/{len(self._link_map)})")
+                    with open(str(rs_file), 'rb') as fp:
+                        self._rs_map[current_link_info.name] = pickle.load(fp)
+                    current_link_info.rs_solved = True
+                        
+                # Recompute the RS
+                else:
+                    force_recompute = True
+                    print(f"Solving for link: {current_link_info.name} ({nb_link_solved+1}/{len(self._link_map)})")
+                    self._solve_link(current_link_info, angle_list)
+                    self._propagate_link(current_link_info, angle_list)
+                    
                 current_link_info = base_link_info   # TODO: Double chained link would allow us to be faster here
                 nb_link_solved += 1
-    
-    def show_rs(self, link_name: str) -> None:
         
-        _, ax = plt.subplots(subplot_kw={"projection": "3d"})
+        if force_recompute:
+            self._save_rs()
         
+    def _save_rs(self) -> None:
+        
+        for key, rs in self._rs_map.items():
+            rs_file = pathlib.Path(self.robot_model.name + "_" + key + "_rs" + ".pickle")
+            
+            with open(str(rs_file), 'wb') as fp:
+                pickle.dump(rs, fp, protocol=pickle.HIGHEST_PROTOCOL)
+            
+    def show_rs(self, link_name: str) -> trimesh.Scene:
+        color = [255, 150, 50, 200]
         mesh = self._rs_map[link_name]
-        ax.plot_trisurf(mesh.vertices[:, 0],
-                        mesh.vertices[:, 1],
-                        mesh.vertices[:, 2],
-                        triangles=mesh.faces, alpha=0.7)
-        self.robot_model.plot_robot(alpha=1., ax=ax)
-    
+        mesh.visual.face_colors = np.array([color] * mesh.faces.shape[0])
+        robot_scene = self.robot_model.plot_robot(alpha=255)
+        robot_scene.add_geometry(mesh)
+        return robot_scene
+
     def show_all_rs(self) -> None:
 
         for link_name in self._rs_map.keys():
-            self.show_rs(link_name)
-        
-        plt.show()
+            rs_scene = self.show_rs(link_name)
+            rs_scene.show()
 
     def _solve_link(self, link_info: LinkInfo, angle_list: tp.List[np.ndarray]) -> None:
         
@@ -124,7 +147,7 @@ class ReachableSpace:
                     vertices_list = np.empty([nb_vertices * len(angle_list[link_info.joint_id]), 3])
                 
                 if link_info.alpha is None:
-                    link_info.alpha = self._find_max_alpha(new_mesh) / 1.
+                    link_info.alpha = self._find_max_alpha(new_mesh)
 
                 vertices_list[i * nb_vertices:(i+1) * nb_vertices, :] = new_mesh.vertices
 
@@ -148,7 +171,6 @@ class ReachableSpace:
             
             # Get all children of link
             link_children = self._get_link_children(parent_link_info.name)
-
 
             for next_link_name in link_children:
 
@@ -178,6 +200,7 @@ class ReachableSpace:
                     # Add vertices to list
                     vertices_list[i * nb_vertices:(i+1) * nb_vertices, :] = new_rs.vertices
                 
+                next_link_info.alpha /= 2  # Adapt alpha. The further it is from the center the lower the alpha
                 self._rs_map[next_link_info.name] = alphashape(vertices_list, next_link_info.alpha)
         
     def _create_link_map(self) -> None:
@@ -197,7 +220,9 @@ class ReachableSpace:
                                                      joint_id=link.jindex,
                                                      children_id=[],
                                                      children_names=[],
-                                                     alpha=None)
+                                                     alpha=None,
+                                                     parent_id=-1,
+                                                     parent_name=link.parent if link.parent is None else link.parent.name)
 
             # Means we added it as a parent and couldn't fill the id and joint_id yet so we fix it now
             else:
@@ -213,12 +238,19 @@ class ReachableSpace:
                                                                 joint_id=None,
                                                                 children_id=[i],
                                                                 children_names=[link.name],
-                                                                alpha=None)
+                                                                alpha=None,
+                                                                parent_id=-1,
+                                                                parent_name=link.parent.parent if link.parent.parent is None else link.parent.parent.name)
         
                 # Append to children if parent already in dict
                 else:
                     self._link_map[link.parent.name].children_id.append(i)
                     self._link_map[link.parent.name].children_names.append(link.name)
+                    
+        # One more pass to fill all parent ids
+        for link_info in self._link_map.values():
+            if link_info.parent_name is not None and link_info.parent_name in self._rs_map.keys():
+                link_info.parent_id = self._rs_map[link_info.parent_name].id
 
     def _get_link_children(self, link_name: str) -> tp.List[str]:
 
@@ -238,7 +270,5 @@ class ReachableSpace:
                     if grand_child_name not in children_list:
                         children_list.append(grand_child_name)
                         added_new_child = True
-
-
 
         return children_list
