@@ -1,2 +1,11 @@
 wheel
 build
+roboticstoolbox-python
+ipython
+matplotlib
+yourdfpy
+trimesh
+pyglet==1.5.27
+scikit-learn
+tqdm
+open3d
