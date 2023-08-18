@@ -6,8 +6,7 @@ import tempfile
 import trimesh
 from trimesh.sample import sample_surface_even
 import numpy as np
-import random
-from math import atan2, sqrt, sin, cos
+from math import sin, cos
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import pickle
@@ -20,6 +19,22 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 class RobotModel(ERobot):
     """Child of ERobot, really just here to give access to all the methods of RTB with any URDF
     """
+    MIN_DECIMATION_FACES = 200
+
+    @staticmethod
+    def sanitize_mesh(mesh: trimesh.Trimesh, fill_holes=True) -> None:
+        
+        mesh.process()
+        # mesh.update_faces(mesh.unique_faces())
+        # mesh.update_faces(mesh.nondegenerate_faces())
+        mesh.remove_unreferenced_vertices()
+        mesh.merge_vertices()
+        mesh.fix_normals()
+        trimesh.repair.fix_winding(mesh)
+        trimesh.repair.fix_inversion(mesh)
+        
+        if fill_holes:
+            mesh.fill_holes()
 
     @staticmethod
     def cart_to_pol(cart_coords) -> np.ndarray:
@@ -31,11 +46,10 @@ class RobotModel(ERobot):
 
         pol_coords = np.full([nb_pts, 3], np.nan)
 
-        for i in range(nb_pts):
-            (x, y, z) = cart_coords[i]
-            pol_coords[i, 0] = atan2(y, x)  # Theta
-            pol_coords[i, 1] = atan2(sqrt(x**2 + y**2), z)  # phi
-            pol_coords[i, 2] = sqrt(x**2 + y**2 + z**2)  # rho
+        x, y, z = cart_coords.T
+        pol_coords[:, 0] = np.arctan2(y, x)  # Theta
+        pol_coords[:, 1] = np.arctan2(np.sqrt(x**2 + y**2), z)  # phi
+        pol_coords[:, 2] = np.sqrt(x**2 + y**2 + z**2)  # rho
 
         return pol_coords
 
@@ -60,9 +74,6 @@ class RobotModel(ERobot):
     def __init__(self, description_folder: tp.Union[str, pathlib.Path],
                  description_file: tp.Union[str, pathlib.Path]) -> None:
 
-        # For reproducibility
-        random.seed(0)
-
         # Handle typing and path resolution
         if isinstance(description_folder, str):
             description_folder = pathlib.Path(description_folder)
@@ -71,8 +82,10 @@ class RobotModel(ERobot):
         description_folder = description_folder.resolve()
         description_file = description_file.resolve()
 
+        # Create rtb robot model
         (e_links, name, self._urdf_str, self._file_path) = ERobot.URDF_read(description_file, tld=description_folder)
         super().__init__(e_links, name=name)
+        self._define_qz()  # define a zero position
 
         # Normalise URDF string
         self._urdf_str = self._urdf_str.replace("package:/", str(description_folder))
@@ -80,6 +93,7 @@ class RobotModel(ERobot):
         # Load geometry meshes
         self._visu_urdf = None
         self._visual_meshes = {}
+        self._simple_visual_meshes = {}
         self._load_visual_urdf()
         self._load_visual_meshes()
 
@@ -174,7 +188,7 @@ class RobotModel(ERobot):
         Z = np.squeeze(cart_coord[:, 2])+self._visual_meshes[link_name].center_mass[2]
         
         # Plot surface
-        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+        _, ax = plt.subplots(subplot_kw={"projection": "3d"})
         ax.scatter(X, Y, Z, c='#17becf')
         ax.plot_trisurf(self._visual_meshes[link_name].vertices[:, 0],
                         self._visual_meshes[link_name].vertices[:, 1],
@@ -219,52 +233,86 @@ class RobotModel(ERobot):
         
         return cart_mesh_coord_abs
         
-    def plot_robot(self, q: np.ndarray, ax=None) -> None:
+    def plot_robot(self, q: tp.Optional[np.ndarray] = None, alpha: int = 200) -> trimesh.Scene:
         
-        if ax is None:
-            _, ax = plt.subplots(subplot_kw={"projection": "3d"})
-
-        for key, mesh in self._visual_meshes.items():
+        if q is None:
+            q = self.qz()
+        
+        geom_list = []
+        colors = [[200, 200, 200, alpha],
+                  [100, 100, 100, alpha]]
+        
+        i = 0
+        for key, mesh in self._simple_visual_meshes.items():
             
             fkine = self.fkine(q, end=key, start=self.base_link)
-    
-            # Reduce mesh for smoother rendering
-            if mesh.faces.shape[0] > 200:
-                simplified_mesh = mesh.simplify_quadric_decimation(0.01 * mesh.faces.shape[0]) 
-            else:
-                simplified_mesh = mesh
-
-            transformed_mesh = simplified_mesh.apply_transform(fkine)
-
-            ax.plot_trisurf(transformed_mesh.vertices[:, 0],
-                            transformed_mesh.vertices[:, 1],
-                            transformed_mesh.vertices[:, 2],
-                            triangles=transformed_mesh.faces, alpha=0.7)
+            transformed_mesh = mesh.copy().apply_transform(fkine)
+            transformed_mesh.visual.face_colors = np.array([colors[i % 2]] * transformed_mesh.faces.shape[0])
+            geom_list.append(transformed_mesh)
+            i += 1
+            
+        robot_scene = trimesh.Scene(geometry=geom_list)
         
-        # Set axes limits
-        xlim = ax.axes.get_xlim3d()
-        ylim = ax.axes.get_ylim3d()
-        zlim = ax.axes.get_zlim3d()
+        return robot_scene
 
-        lb = min([xlim[0], ylim[0], zlim[0]])
-        ub = max([xlim[1], ylim[1], zlim[1]])
+    def qz(self) -> np.ndarray:
+        """Shortcut to get qz form the robot model
 
-        ax.axes.set_xlim3d(lb, ub)
-        ax.axes.set_ylim3d(lb, ub)
-        ax.axes.set_zlim3d(lb, ub)
+        Returns:
+            np.ndarray: q zero
+        """
+        if 'qz' not in self.configs:
+            self._define_qz()
+        
+        # display qz
+        
+        return self.configs['qz'].copy()
+    
+    def get_mesh_at_q(self,  q: tp.Optional[np.ndarray], link_name: str, simplified_mesh: bool = True) -> trimesh.Trimesh:
 
-    def _load_visual_meshes(self) -> None:
+        # Get correct mesh        
+        if simplified_mesh:
+            mesh = self._simple_visual_meshes[link_name].copy()
+        else:
+            mesh = self._visual_meshes[link_name].copy()
+        
+        # Compute and apply transform
+        if q is not None:
+            fkine = self.fkine(q, end=link_name, start=self.base_link)
+            mesh = mesh.apply_transform(fkine)
+
+        return mesh
+
+    def link_has_visual(self, link_name: str) -> bool:
+        return (len(self._visu_urdf.link_map[link_name].visuals) > 0)
+        
+    def _load_visual_meshes(self, decimation_ratio: float = 0.01) -> None:
         if self._visu_urdf is not None:
             for key, link in self._visu_urdf.link_map.items():
-                if len(link.visuals) > 0:
+                
+                # Load full mesh
+                if self.link_has_visual(key):
                     stl_file = link.visuals[0].geometry.mesh.filename
                     self._visual_meshes[key] = trimesh.load_mesh(stl_file)
-                    self._visual_meshes[key] = self._visual_meshes[key].process()
-                    self._visual_meshes[key] = self._visual_meshes[key].smoothed()
+                    
+                    if not self._visual_meshes[key].is_watertight:
+                        self._visual_meshes[key].fill_holes()
+                        print(f"Made mesh {key} watertight")
+                    self.sanitize_mesh(self._visual_meshes[key])
                     
                     # Set the link at it's origin point if needed
                     if link.visuals[0].origin is not None:
-                        self._visual_meshes[key] = self._visual_meshes[key].apply_transform(link.visuals[0].origin)
+                        self._visual_meshes[key].apply_transform(link.visuals[0].origin)
+                        
+                    # Load a simplified representation
+                    if decimation_ratio < 1:
+                        nb_faces = self._visual_meshes[key].faces.shape[0]
+                        nb_decimated_faces = max([nb_faces * decimation_ratio, self.MIN_DECIMATION_FACES])
+                        self._simple_visual_meshes[key] = self._visual_meshes[key].copy().simplify_quadric_decimation(nb_decimated_faces)
+                        self.sanitize_mesh(self._simple_visual_meshes[key])
+                    else:
+                        raise ValueError(f"Decimation ratio should be in ]0, 1] but was {decimation_ratio}")
+                    
         else:
             print("Can't load visual meshes before loading visual URDF")
 
@@ -279,4 +327,14 @@ class RobotModel(ERobot):
             with open(tmp_urdf, "w") as tmpf:
                 tmpf.write(self._urdf_str)
             self._visu_urdf = URDF.load(tmp_urdf)
-        
+            
+    def _define_qz(self) -> None:
+        qz = np.zeros((self.n))
+
+        # Adjust qz if not within joint limits
+        for i in range(self.n):
+
+            if qz[i] < self.qlim[0, i] or qz[i] > self.qlim[1, i]:
+                qz[i] = self.qlim[0, i] + (self.qlim[1, i] - self.qlim[0, i])/2
+
+        self.addconfiguration('qz', qz)

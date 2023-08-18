@@ -1,16 +1,14 @@
-"""An example on how to use simple FK form the RobotModel in this package
+"""An example on how to use oppositions spaces in this package
 """
 from pathlib import Path
 import os
 import random
-import numpy as np
-import matplotlib.pyplot as plt
 from collections import namedtuple
 
 from pyGrasp.robot_model import RobotModel
+from pyGrasp.opposition_spaces import OppositionSpace
 
 
-# TODO: Find a way to genralize this snippet across all examples
 UrdfPath = namedtuple("UrdfPath", ["folder", "file_path"])
 
 
@@ -46,20 +44,14 @@ def main() -> None:
         print(robot_model)
     else:
         raise FileNotFoundError(f"URDF provided is not a valid file path: {urdf_path}")
-
-    # Explicitly ask to learn geometries
-    robot_model.learn_geometry(verbose=True)
-
-    # Select random joints and angles for FK
-    q_fk = robot_model.random_q()
-    link_goal_id = random.randint(1, robot_model.nlinks)
-    link_goal = robot_model.links[link_goal_id]
-    theta = random.uniform(-np.pi, np.pi)
-    phi = random.uniform(0, np.pi)
-
-    # Perform extended fk
-    robot_model.extended_fk(q_fk, theta, phi, tip_link=link_goal, plot_result=True)
-    plt.show()
+    
+    # Create reachable space
+    opp_s = OppositionSpace(robot_model)
+    opp_s.compute_os(force_recompute=True)
+    
+    # Show all os's to check
+    opp_s.show_all_os()
+    opp_s.show_os_matrix(obj_diameter=0.3)
 
 
 if __name__ == "__main__":

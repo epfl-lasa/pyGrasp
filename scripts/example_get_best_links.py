@@ -1,16 +1,14 @@
-"""An example on how to use simple FK form the RobotModel in this package
+"""An example on how to use oppositions spaces in this package
 """
 from pathlib import Path
 import os
 import random
-import numpy as np
-import matplotlib.pyplot as plt
 from collections import namedtuple
 
 from pyGrasp.robot_model import RobotModel
+from pyGrasp.opposition_spaces import OppositionSpace
 
 
-# TODO: Find a way to genralize this snippet across all examples
 UrdfPath = namedtuple("UrdfPath", ["folder", "file_path"])
 
 
@@ -46,21 +44,19 @@ def main() -> None:
         print(robot_model)
     else:
         raise FileNotFoundError(f"URDF provided is not a valid file path: {urdf_path}")
-
-    # Explicitly ask to learn geometries
-    robot_model.learn_geometry(verbose=True)
-
-    # Select random joints and angles for FK
-    q_fk = robot_model.random_q()
-    link_goal_id = random.randint(1, robot_model.nlinks)
-    link_goal = robot_model.links[link_goal_id]
-    theta = random.uniform(-np.pi, np.pi)
-    phi = random.uniform(0, np.pi)
-
-    # Perform extended fk
-    robot_model.extended_fk(q_fk, theta, phi, tip_link=link_goal, plot_result=True)
-    plt.show()
-
+    
+    # Create reachable space
+    opp_s = OppositionSpace(robot_model)
+    opp_s.compute_os(force_recompute=True)
+    
+    # Get the best Oppsition
+    link_for_grasp = opp_s.get_best_os(obj_diameter=0.3, excluded_links=[])  # Names of the links to exclude from the search
+    
+    # Link grasp can also be called with a point cloud as follow:
+    # link_for_grasp = opp_s.get_best_os(point_cloud=my_point_cloud, excluded_links=[])
+    # Point cloud is an array-like of dim (n, 3)
+    
+    print(f"Links with the best opposition space: {link_for_grasp[0]} {link_for_grasp[1]}")
 
 if __name__ == "__main__":
     main()

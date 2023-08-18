@@ -8,6 +8,7 @@ Options:
 
 # Parse input flags
 BUILD_FLAGS=()
+rebuild=false
 while [ "$#" -gt 0 ]; do
   case "$1" in
   -r | --rebuild)
