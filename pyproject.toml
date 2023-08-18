@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "PyGrasp"
+version = "0.0.1"
+authors = [
+  { name="Loïc Niederhauser", email="loic.niederhauser@epfl.ch" },
+  { name="Kunpeng Yao", email="kunpeng.yao@epfl.ch" }
+]
+description = "A packagae for flexible multi-grasp"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
