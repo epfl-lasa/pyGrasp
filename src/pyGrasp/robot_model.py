@@ -188,7 +188,7 @@ class RobotModel(ERobot):
         Z = np.squeeze(cart_coord[:, 2])+self._visual_meshes[link_name].center_mass[2]
         
         # Plot surface
-        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+        _, ax = plt.subplots(subplot_kw={"projection": "3d"})
         ax.scatter(X, Y, Z, c='#17becf')
         ax.plot_trisurf(self._visual_meshes[link_name].vertices[:, 0],
                         self._visual_meshes[link_name].vertices[:, 1],
@@ -233,38 +233,27 @@ class RobotModel(ERobot):
         
         return cart_mesh_coord_abs
         
-    def plot_robot(self, q: tp.Optional[np.ndarray] = None, ax=None, alpha: float = 0.7) -> None:
+    def plot_robot(self, q: tp.Optional[np.ndarray] = None, alpha: int = 200) -> trimesh.Scene:
         
         if q is None:
             q = self.qz()
         
-        if ax is None:
-            _, ax = plt.subplots(subplot_kw={"projection": "3d"})
-
+        geom_list = []
+        colors = [[200, 200, 200, alpha],
+                  [100, 100, 100, alpha]]
+        
+        i = 0
         for key, mesh in self._simple_visual_meshes.items():
             
             fkine = self.fkine(q, end=key, start=self.base_link)
             transformed_mesh = mesh.copy().apply_transform(fkine)
-
-            ax.plot_trisurf(transformed_mesh.vertices[:, 0],
-                            transformed_mesh.vertices[:, 1],
-                            transformed_mesh.vertices[:, 2],
-                            triangles=transformed_mesh.faces, alpha=alpha)
+            transformed_mesh.visual.face_colors = np.array([colors[i % 2]] * transformed_mesh.faces.shape[0])
+            geom_list.append(transformed_mesh)
+            i += 1
+            
+        robot_scene = trimesh.Scene(geometry=geom_list)
         
-        # Set axes limits
-        xlim = ax.axes.get_xlim3d()
-        ylim = ax.axes.get_ylim3d()
-        zlim = ax.axes.get_zlim3d()
-
-        lb = min([xlim[0], ylim[0], zlim[0]])
-        ub = max([xlim[1], ylim[1], zlim[1]])
-        span = (ub-lb)/2
-        x_center = xlim[1] - xlim[0]
-        y_center = ylim[1] - ylim[0]
-
-        ax.axes.set_xlim3d(x_center - span, x_center + span)
-        ax.axes.set_ylim3d(y_center - span, y_center + span)
-        ax.axes.set_zlim3d(lb, ub)
+        return robot_scene
 
     def qz(self) -> np.ndarray:
         """Shortcut to get qz form the robot model
@@ -279,7 +268,7 @@ class RobotModel(ERobot):
         
         return self.configs['qz'].copy()
     
-    def get_mesh_at_q(self,  q: tp.Optional[np.ndarray], link_name: str, simplified_mesh = True) -> trimesh.Trimesh:
+    def get_mesh_at_q(self,  q: tp.Optional[np.ndarray], link_name: str, simplified_mesh: bool = True) -> trimesh.Trimesh:
 
         # Get correct mesh        
         if simplified_mesh:
