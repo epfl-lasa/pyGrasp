@@ -22,12 +22,13 @@ class LinkInfo:
     parent_id: int
     parent_name: tp.Optional[str]
     alpha: tp.Optional[float]
+    alpha_factor: int
 
 
 class ReachableSpace:
 
-    MAX_ALPHA_FACES = 1000
-    BASE_ALPHA_FACES = 200
+    MAX_ALPHA_FACES = 2000
+    BASE_ALPHA_FACES = 500
     
     @staticmethod
     def _find_max_alpha(mesh: trimesh.Trimesh) -> float:
@@ -58,7 +59,7 @@ class ReachableSpace:
         self._link_map = {}   # Key = link, value = LinkInfo
         self._rs_map = {}
     
-    def compute_rs(self, angle_step: float = .01, force_recompute: bool = False) -> None:
+    def compute_rs(self, angle_step: float = .005, force_recompute: bool = False) -> None:
 
         # Generate link map
         if not self._link_map:
@@ -152,7 +153,7 @@ class ReachableSpace:
                 vertices_list[i * nb_vertices:(i+1) * nb_vertices, :] = new_mesh.vertices
 
             # Compute alpha shape
-            self._rs_map[link_info.name] = alphashape(vertices_list, link_info.alpha)
+            self._rs_map[link_info.name] = alphashape(vertices_list, link_info.alpha / link_info.alpha_factor)
             
         # Link has no joint that directly moves it. So RS is link geometry
         elif self.robot_model.link_has_visual(link_info.name):     # TODO: Can't really think straight on how to handle the base link with no visual properly. TBD
@@ -200,8 +201,8 @@ class ReachableSpace:
                     # Add vertices to list
                     vertices_list[i * nb_vertices:(i+1) * nb_vertices, :] = new_rs.vertices
                 
-                next_link_info.alpha /= 2  # Adapt alpha. The further it is from the center the lower the alpha
-                self._rs_map[next_link_info.name] = alphashape(vertices_list, next_link_info.alpha)
+                next_link_info.alpha_factor += 1  # Adapt alpha. The further it is from the center the lower the alpha
+                self._rs_map[next_link_info.name] = alphashape(vertices_list, next_link_info.alpha / next_link_info.alpha_factor)
         
     def _create_link_map(self) -> None:
         """Generate a dictionary of links and their children to be able to brows them from base to tip
@@ -222,7 +223,8 @@ class ReachableSpace:
                                                      children_names=[],
                                                      alpha=None,
                                                      parent_id=-1,
-                                                     parent_name=link.parent if link.parent is None else link.parent.name)
+                                                     parent_name=link.parent if link.parent is None else link.parent.name,
+                                                     alpha_factor=1)
 
             # Means we added it as a parent and couldn't fill the id and joint_id yet so we fix it now
             else:
@@ -240,7 +242,8 @@ class ReachableSpace:
                                                                 children_names=[link.name],
                                                                 alpha=None,
                                                                 parent_id=-1,
-                                                                parent_name=link.parent.parent if link.parent.parent is None else link.parent.parent.name)
+                                                                parent_name=link.parent.parent if link.parent.parent is None else link.parent.parent.name,
+                                                                alpha_factor=1)
         
                 # Append to children if parent already in dict
                 else:

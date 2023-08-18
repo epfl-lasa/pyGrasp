@@ -110,7 +110,7 @@ class OppositionSpace(ReachableSpace):
                         os_dst_array[i, j] = 0
                         
         # Plot it
-        _, ax = plt.subplots()
+        fig, ax = plt.subplots()
         ax.imshow(os_dst_array)
         ax.set_xticks(np.arange(nb_links), labels=link_names)
         ax.set_yticks(np.arange(nb_links), labels=link_names)
@@ -123,4 +123,32 @@ class OppositionSpace(ReachableSpace):
         ax.set_title(f"Oppositon spaces for d={obj_diameter}")
         fig.tight_layout()
         plt.show()
+    
+    @staticmethod
+    def get_point_cloud_diameter(point_cloud) -> float:
+        point_cloud = np.asarray(point_cloud)
+        _, radius, _ = trimesh.nsphere(point_cloud)
+        return radius * 2
         
+    def get_best_os(self,
+                    point_cloud: tp.Optional[np.ndarray] = None,
+                    obj_diameter: tp.Optional[float] = None,
+                    excluded_links: tp.List[str] = []) -> tp.Optional[tp.Tuple[str]]:
+        best_os_combination = None
+        max_os_dst = -np.inf
+        
+        if point_cloud is not None:
+            obj_diameter = self.get_point_cloud_diameter(point_cloud)
+        elif obj_diameter is None:
+            raise ValueError("Either point_cloud or obj_diameter should not be None")
+        
+        for link_1, link_2 in self.os_set:
+            if (link_1 not in excluded_links) and (link_2 not in excluded_links):
+                if self.os_dist.loc[link_1, link_2]['min'] < obj_diameter < self.os_dist.loc[link_1, link_2]['max']:
+                    if self.os_dist[link_1, link_2]['max'] > max_os_dst:
+                        best_os_combination = (link_1, link_2)
+                        max_os_dst = self.os_dist[link_1, link_2]['max']
+        
+        return best_os_combination
+                
+                

@@ -49,10 +49,14 @@ def main() -> None:
     opp_s = OppositionSpace(robot_model)
     opp_s.compute_os(force_recompute=True)
     
-    # Show all os's to check
-    opp_s.show_all_os()
-    opp_s.show_os_matrix(obj_diameter=0.3)
-
+    # Get the best Oppsition
+    link_for_grasp = opp_s.get_best_os(obj_diameter=0.3, excluded_links=[])  # Names of the links to exclude from the search
+    
+    # Link grasp can also be called with a point cloud as follow:
+    # link_for_grasp = opp_s.get_best_os(point_cloud=my_point_cloud, excluded_links=[])
+    # Point cloud is an array-like of dim (n, 3)
+    
+    print(f"Links with the best opposition space: {link_for_grasp[0]} {link_for_grasp[1]}")
 
 if __name__ == "__main__":
     main()
