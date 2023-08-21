@@ -22,7 +22,6 @@ class LinkInfo:
     parent_id: int
     parent_name: tp.Optional[str]
     alpha: tp.Optional[float]
-    alpha_factor: int
 
 
 class ReachableSpace:
@@ -105,14 +104,6 @@ class ReachableSpace:
         
         if force_recompute:
             self._save_rs()
-        
-    def _save_rs(self) -> None:
-        
-        for key, rs in self._rs_map.items():
-            rs_file = pathlib.Path(self.robot_model.name + "_" + key + "_rs" + ".pickle")
-            
-            with open(str(rs_file), 'wb') as fp:
-                pickle.dump(rs, fp, protocol=pickle.HIGHEST_PROTOCOL)
             
     def show_rs(self, link_name: str) -> trimesh.Scene:
         color = [255, 150, 50, 200]
@@ -153,7 +144,7 @@ class ReachableSpace:
                 vertices_list[i * nb_vertices:(i+1) * nb_vertices, :] = new_mesh.vertices
 
             # Compute alpha shape
-            self._rs_map[link_info.name] = alphashape(vertices_list, link_info.alpha / link_info.alpha_factor)
+            self._rs_map[link_info.name] = alphashape(vertices_list, link_info.alpha)
             
         # Link has no joint that directly moves it. So RS is link geometry
         elif self.robot_model.link_has_visual(link_info.name):     # TODO: Can't really think straight on how to handle the base link with no visual properly. TBD
@@ -201,8 +192,7 @@ class ReachableSpace:
                     # Add vertices to list
                     vertices_list[i * nb_vertices:(i+1) * nb_vertices, :] = new_rs.vertices
                 
-                next_link_info.alpha_factor += 1  # Adapt alpha. The further it is from the center the lower the alpha
-                self._rs_map[next_link_info.name] = alphashape(vertices_list, next_link_info.alpha / next_link_info.alpha_factor)
+                self._rs_map[next_link_info.name] = alphashape(vertices_list, self._find_max_alpha(self._rs_map[next_link_info.name]))
         
     def _create_link_map(self) -> None:
         """Generate a dictionary of links and their children to be able to brows them from base to tip
@@ -223,8 +213,7 @@ class ReachableSpace:
                                                      children_names=[],
                                                      alpha=None,
                                                      parent_id=-1,
-                                                     parent_name=link.parent if link.parent is None else link.parent.name,
-                                                     alpha_factor=1)
+                                                     parent_name=link.parent if link.parent is None else link.parent.name)
 
             # Means we added it as a parent and couldn't fill the id and joint_id yet so we fix it now
             else:
@@ -242,8 +231,7 @@ class ReachableSpace:
                                                                 children_names=[link.name],
                                                                 alpha=None,
                                                                 parent_id=-1,
-                                                                parent_name=link.parent.parent if link.parent.parent is None else link.parent.parent.name,
-                                                                alpha_factor=1)
+                                                                parent_name=link.parent.parent if link.parent.parent is None else link.parent.parent.name)
         
                 # Append to children if parent already in dict
                 else:
@@ -275,3 +263,10 @@ class ReachableSpace:
                         added_new_child = True
 
         return children_list
+    
+    def _save_rs(self) -> None:
+        for key, rs in self._rs_map.items():
+            rs_file = pathlib.Path(self.robot_model.name + "_" + key + "_rs" + ".pickle")
+            
+            with open(str(rs_file), 'wb') as fp:
+                pickle.dump(rs, fp, protocol=pickle.HIGHEST_PROTOCOL)
