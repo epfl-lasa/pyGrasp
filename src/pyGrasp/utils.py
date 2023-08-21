@@ -10,13 +10,15 @@ PYGRASP_ROOT = Path(os.path.dirname(__file__))
 
 # Cache folder for pygrasp
 CACHE_FOLDER = PYGRASP_ROOT / ".cache"
+if not CACHE_FOLDER.is_dir():
+    os.mkdir(str(CACHE_FOLDER))
 
 # A class to hold the infos about a path to a URDF
 UrdfPath = namedtuple("UrdfPath", ["folder", "file_path"])
 
 # All available robot with their path descriptions
-IIWA_FOLDER = PYGRASP_ROOT / "../models/iiwa/"
-ALLEGRO_FOLDER = PYGRASP_ROOT / "../models/allegro/"
+IIWA_FOLDER = PYGRASP_ROOT / "../../models/iiwa/"
+ALLEGRO_FOLDER = PYGRASP_ROOT / "../../models/allegro/"
 
 IIWA7_URDF_PATH = UrdfPath(folder=IIWA_FOLDER,
                            file_path=IIWA_FOLDER / Path("iiwa_description/urdf/iiwa7.urdf.xacro"))

@@ -15,6 +15,8 @@ from yourdfpy import URDF
 from roboticstoolbox.robot.ERobot import ERobot
 from sklearn.gaussian_process import GaussianProcessRegressor
 
+from . import utils as pgu
+
 
 class RobotModel(ERobot):
     """Child of ERobot, really just here to give access to all the methods of RTB with any URDF
@@ -119,7 +121,7 @@ class RobotModel(ERobot):
         for key, mesh in tqdm(self._visual_meshes.items()):
             
             # Check if the file exist
-            save_file = pathlib.Path(self.name + "_" + key + ".pickle")
+            save_file = pgu.CACHE_FOLDER / pathlib.Path(self.name + "_" + key + ".pickle")
             if force_recompute or not save_file.is_file():
                 
                 if verbose:
@@ -226,10 +228,13 @@ class RobotModel(ERobot):
         cart_mesh_coord_abs = np.dot(fk_result, np.concatenate((cart_mesh_coord, np.array([[1]])), axis=1).transpose())[0:3]
         
         if plot_result:
-            _, ax = plt.subplots(subplot_kw={"projection": "3d"})
-            self.plot_robot(q, ax=ax)
-            ax.quiver(0, 0, 0, [cart_mesh_coord_abs[0]], [cart_mesh_coord_abs[1]], [cart_mesh_coord_abs[2]], color='r', arrow_length_ratio=0.2, linewidths=2)
-        plt.show()
+            origin = np.zeros_like(cart_mesh_coord_abs)
+            robot_scene = self.plot_robot(q)
+            fk_len = np.linalg.norm(cart_mesh_coord_abs)
+            fk_axis = trimesh.creation.cylinder(radius=0.001 * fk_len, sections=40, segment=np.concatenate([origin, cart_mesh_coord_abs], axis=1).transpose())
+            fk_axis.visual.face_colors=[255, 0, 0, 255]
+            robot_scene.add_geometry(fk_axis)
+            robot_scene.show()
         
         return cart_mesh_coord_abs
         

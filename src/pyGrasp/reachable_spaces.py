@@ -8,6 +8,7 @@ import pathlib
 import pickle
 import pandas as pd
 
+from . import utils as pgu
 from .tools.alphashape import alphashape, circumradius
 from .robot_model import RobotModel
 
@@ -58,9 +59,9 @@ class ReachableSpace:
         self.robot_model = robot_model
         self._link_map = {}   # Key = link, value = LinkInfo
         self._rs_map = {}
-        self._rs_df = 
+        # self._rs_df = 
     
-    def compute_rs(self, angle_step: float = .005, force_recompute: bool = False) -> None:
+    def compute_rs(self, angle_step: float = .1, force_recompute: bool = False) -> None:
 
         # Generate link map
         if not self._link_map:
