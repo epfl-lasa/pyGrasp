@@ -6,6 +6,7 @@ from trimesh.boolean import union
 import trimesh
 import pathlib
 import pickle
+import pandas as pd
 
 from .tools.alphashape import alphashape, circumradius
 from .robot_model import RobotModel
@@ -57,6 +58,7 @@ class ReachableSpace:
         self.robot_model = robot_model
         self._link_map = {}   # Key = link, value = LinkInfo
         self._rs_map = {}
+        self._rs_df = 
     
     def compute_rs(self, angle_step: float = .005, force_recompute: bool = False) -> None:
 
@@ -81,7 +83,8 @@ class ReachableSpace:
                     current_link_info = child_link_info
                     all_children_solved = False
                     break
-                    
+            
+            # Solve the current link RS
             if all_children_solved:
                 rs_file = pathlib.Path(self.robot_model.name + "_" + current_link_info.name + "_rs" + ".pickle")
                 

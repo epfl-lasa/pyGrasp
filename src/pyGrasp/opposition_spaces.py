@@ -133,7 +133,7 @@ class OppositionSpace(ReachableSpace):
     def get_best_os(self,
                     point_cloud: tp.Optional[np.ndarray] = None,
                     obj_diameter: tp.Optional[float] = None,
-                    excluded_links: tp.List[str] = []) -> tp.Optional[tp.Tuple[str]]:
+                    excluded_links: tp.List[str] = []) -> tp.Optional[tp.Tuple[str, str]]:
         best_os_combination = None
         max_os_dst = -np.inf
         

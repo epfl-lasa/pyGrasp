@@ -1,51 +1,31 @@
-"""An example on how to use simple FK form the RobotModel in this package
+"""An example on how to use the extended FK from this package
+The extended FK is an FK from any base link to any point on a tip link on the robot.
 """
-from pathlib import Path
-import os
 import random
 import numpy as np
 import matplotlib.pyplot as plt
-from collections import namedtuple
 
+import pyGrasp.utils as pgu
 from pyGrasp.robot_model import RobotModel
 
-
-# TODO: Find a way to genralize this snippet across all examples
-UrdfPath = namedtuple("UrdfPath", ["folder", "file_path"])
-
-
-# All availabel robot with their path descriptions
-IIWA7_URDF_PATH = UrdfPath(folder=Path("../models/iiwa/"),
-                           file_path=Path("iiwa_description/urdf/iiwa7.urdf.xacro"))
-IIWA14_URDF_PATH = UrdfPath(folder=Path("../models/iiwa/"),
-                            file_path=Path("iiwa_description/urdf/iiwa14.urdf.xacro"))
-ALLEGRO_LEFT_URDF_PATH = UrdfPath(folder=Path("../models/allegro/"),
-                                  file_path=Path("allegro_hand_description/allegro_hand_description_left.urdf"))
-ALLEGRO_RIGHT_URDF_PATH = UrdfPath(folder=Path("../models/allegro/"),
-                                   file_path=Path("allegro_hand_description/allegro_hand_description_right.urdf"))
-
 # Choose your example robot here
-SELECTED_ROBOT = IIWA7_URDF_PATH
+SELECTED_ROBOT = pgu.IIWA7_URDF_PATH
 
 
 def main() -> None:
-    """Gets the model of the IIWA, print it and performs FK to a random link. 
+    """Gets the model of the IIWA, print it and performs an extended FK to
+    a random point on a random link of the robot.
     """
 
     random.seed(0)  # For repeatability
 
-    # Find an example URDF (iiwa7)
-    here = os.path.dirname(__file__)
-    urdf_folder = Path(here) / SELECTED_ROBOT.folder
-    urdf_path = urdf_folder / SELECTED_ROBOT.file_path
-
     # Load urdf
-    if urdf_folder.is_dir() and urdf_path.is_file():
-        robot_model = RobotModel(urdf_folder, urdf_path)
+    if SELECTED_ROBOT.folder.is_dir() and SELECTED_ROBOT.file_path.is_file():
+        robot_model = RobotModel(SELECTED_ROBOT.folder, SELECTED_ROBOT.file_path)
         print("Loaded robot model:")
         print(robot_model)
     else:
-        raise FileNotFoundError(f"URDF provided is not a valid file path: {urdf_path}")
+        raise FileNotFoundError(f"URDF provided is not a valid file path: {SELECTED_ROBOT}")
 
     # Explicitly ask to learn geometries
     robot_model.learn_geometry(verbose=True)
