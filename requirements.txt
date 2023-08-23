@@ -13,3 +13,5 @@ pandas
 numpy
 pycodestyle
 mypy
+pymeshfix
+pyvista
