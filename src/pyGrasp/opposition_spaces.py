@@ -170,6 +170,9 @@ class OppositionSpace(ReachableSpace):
                 rs_backtransform = np.linalg.inv(self.robot_model.fkine(q_test, end=parent_link.name))
                 msh.apply_transform(rs_backtransform)
 
+                if msh.faces.shape[0] > self.MAX_ALPHA_FACES:
+                    msh = msh.simplify_quadric_decimation(self.BASE_ALPHA_FACES)
+
                 nb_vertices = msh.vertices.shape[0]
                 vertices_list = np.full([nb_vertices * len(angle_list[parent_link.joint_id]), 3], np.nan)
                 for i, angle in tqdm(enumerate(angle_list[parent_link.joint_id])):
