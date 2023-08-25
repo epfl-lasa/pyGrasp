@@ -6,9 +6,11 @@ import pickle
 import matplotlib.pyplot as plt
 from itertools import combinations
 import typing as tp
+from tqdm import tqdm
 
 from .robot_model import RobotModel
 from .reachable_spaces import ReachableSpace
+from .tools.alphashape import alphashape
 
 
 class OppositionSpace(ReachableSpace):
@@ -55,10 +57,6 @@ class OppositionSpace(ReachableSpace):
                                                                             self._rs_df.loc[common_parent, target]],
                                                                             engine='blender')
 
-                        # Fix watertightness
-                        if not self.os_df.loc[base, target].is_watertight:
-                            self.os_df.loc[base, target] = RobotModel.robust_hole_filling(self.os_df.loc[base, target])
-
                         # Apply OS symmetry
                         self.os_df.loc[target, base] = self.os_df.loc[base, target]
 
@@ -70,6 +68,9 @@ class OppositionSpace(ReachableSpace):
                         max_dst = distances.max()
                         self.os_dist.at[base, target] = {'min': min_dst, 'max': max_dst}
                         self.os_dist.at[target, base] = self.os_dist.at[base, target]
+
+                        # Propagate OS
+                        self._propagate_os_geometry(base, target, common_parent)
 
             # Save the computed OS
             with open(str(os_file_name), 'wb') as fp:
@@ -155,4 +156,36 @@ class OppositionSpace(ReachableSpace):
         return best_os_combination
 
     def _propagate_os_geometry(self, link_1: str, link_2: str, common_parent: str, angle_step: float = 0.01) -> None:
-        pass
+
+        angle_list = [np.arange(q_min, q_max, angle_step) for (q_min, q_max) in self.robot_model.qlim.transpose()]
+
+        parent_link = self._link_map[common_parent]
+        while True:
+
+            msh = self._rs_df.loc[link_1, link_2]
+
+            if parent_link.joint_id is not None:
+                q_test = self.robot_model.qz()
+
+                rs_backtransform = np.linalg.inv(self.robot_model.fkine(q_test, end=parent_link.name))
+                msh.apply_transform(rs_backtransform)
+
+                nb_vertices = msh.vertices.shape[0]
+                vertices_list = np.full([nb_vertices * len(angle_list[parent_link.joint_id]), 3], np.nan)
+                for i, angle in tqdm(enumerate(angle_list[parent_link.joint_id])):
+                    q_test[parent_link.joint_id] = angle
+
+                    fk = self.robot_model.fkine(q_test, end=parent_link.name)
+                    new_os = msh.copy().apply_transform(fk)
+
+                    vertices_list[i * nb_vertices:(i+1) * nb_vertices, :] = new_os.vertices
+
+                self._rs_df.loc[link_1, link_2] = alphashape(vertices_list, self._find_max_alpha(msh))
+
+            # Go to the next link
+            if parent_link.parent_name is None:
+                break
+            else:
+                parent_link = self._link_map[parent_link.parent_name]
+
+        self._rs_df.loc[link_2, link_1] = self._rs_df.loc[link_1, link_2]
