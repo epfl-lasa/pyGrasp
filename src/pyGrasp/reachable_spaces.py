@@ -175,6 +175,15 @@ class ReachableSpace:
 
                 current_link = self._link_map[current_link.parent_name]
 
+        # Fill link self geometry
+        if self.robot_model.link_has_visual(link_info.name):
+            new_mesh = self.robot_model.get_mesh_at_q(self.robot_model.qz(), link_info.name)
+            if link_info.alpha is None:
+                        link_info.alpha = self._find_max_alpha(new_mesh)
+            self._rs_df.loc[link_info.name, link_info.name] = alphashape(new_mesh.vertices, link_info.alpha)
+            self._rs_df.loc[link_info.name, link_info.name] = \
+                RobotModel.robust_hole_filling(self._rs_df.loc[link_info.name, link_info.name])
+
         # Iterate over all angles
         if link_info.joint_id is not None:
 
@@ -210,14 +219,6 @@ class ReachableSpace:
             # This is done for the case the joint between link is just "static"
             if parent_link is not None:
                 self._rs_df.loc[parent_link.name, link_info.name] = alphashape(new_mesh.vertices, max_alpha)
-
-            # This is done for the case the link is the root
-            else:
-                self._rs_df.loc[link_info.name, link_info.name] = alphashape(new_mesh.vertices, max_alpha)
-                # We're gonna handle hole filling right here because it's quicker to write
-                # TODO: Update that to make it better
-                self._rs_df.loc[link_info.name, link_info.name] = \
-                    RobotModel.robust_hole_filling(self._rs_df.loc[link_info.name, link_info.name])
 
         if parent_link is not None and self._rs_df.loc[parent_link.name, link_info.name].is_watertight:
 
@@ -400,3 +401,40 @@ class ReachableSpace:
             raise ValueError("No root link with a geometry found")
 
         return root_link.name
+
+    def _find_first_common_parent(self, link_1: str, link_2: str) -> tp.Optional[str]:
+
+        if link_1 == link_2:
+            return link_1
+
+        link_info_1 = self._link_map[link_1]
+        link_info_2 = self._link_map[link_2]
+
+        # TODO: Redundant code. If we're clever we could get around this
+        # TODO: This is also easy to extend to as many links as we want
+        # Establish common parents for link 1
+        link_1_parent_list = []
+        link_1_parent = link_info_1
+        while link_1_parent.parent_name is not None:
+
+            link_1_parent = self._link_map[link_1_parent.parent_name]
+
+            if self.robot_model.link_has_visual(link_1_parent.name):
+
+                if link_1_parent.name == link_2:
+                    return link_1_parent.name
+
+                link_1_parent_list.append(link_1_parent.name)
+
+        # Establish parents of link 2
+        link_2_parent = link_info_2
+        while link_2_parent.parent_name is not None:
+
+            link_2_parent = self._link_map[link_2_parent.parent_name]
+
+            if self.robot_model.link_has_visual(link_2_parent.name):
+
+                if link_2_parent.name == link_1 or link_2_parent.name in link_1_parent_list:
+                    return link_2_parent.name
+
+        return None
