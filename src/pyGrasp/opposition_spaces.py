@@ -192,4 +192,3 @@ class OppositionSpace(ReachableSpace):
                 parent_link = self._link_map[parent_link.parent_name]
 
         self.os_df.loc[link_2, link_1] = self.os_df.loc[link_1, link_2]
-        breakpoint()
