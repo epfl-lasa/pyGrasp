@@ -162,7 +162,7 @@ class OppositionSpace(ReachableSpace):
         parent_link = self._link_map[common_parent]
         while True:
 
-            msh = self._rs_df.loc[link_1, link_2]
+            msh = self.os_df.loc[link_1, link_2]
 
             if parent_link.joint_id is not None:
                 q_test = self.robot_model.qz()
@@ -183,7 +183,7 @@ class OppositionSpace(ReachableSpace):
 
                     vertices_list[i * nb_vertices:(i+1) * nb_vertices, :] = new_os.vertices
 
-                self._rs_df.loc[link_1, link_2] = alphashape(vertices_list, self._find_max_alpha(msh))
+                self.os_df.loc[link_1, link_2] = alphashape(vertices_list, self._find_max_alpha(msh))
 
             # Go to the next link
             if parent_link.parent_name is None:
@@ -191,4 +191,5 @@ class OppositionSpace(ReachableSpace):
             else:
                 parent_link = self._link_map[parent_link.parent_name]
 
-        self._rs_df.loc[link_2, link_1] = self._rs_df.loc[link_1, link_2]
+        self.os_df.loc[link_2, link_1] = self.os_df.loc[link_1, link_2]
+        breakpoint()
