@@ -15,3 +15,4 @@ pycodestyle
 mypy
 pymeshfix
 pyvista
+line_profiler
