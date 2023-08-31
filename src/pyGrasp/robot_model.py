@@ -323,7 +323,7 @@ class RobotModel(ERobot):
     def link_has_visual(self, link_name: str) -> bool:
         return (len(self._visu_urdf.link_map[link_name].visuals) > 0)
 
-    def _load_visual_meshes(self, decimation_ratio: float = 0.01) -> None:
+    def _load_visual_meshes(self, decimation_ratio: float = 0.1) -> None:
         if self._visu_urdf is not None:
             for key, link in self._visu_urdf.link_map.items():
 
@@ -331,13 +331,6 @@ class RobotModel(ERobot):
                 if self.link_has_visual(key):
                     stl_file = link.visuals[0].geometry.mesh.filename
                     self._visual_meshes[key] = trimesh.load_mesh(stl_file)
-
-                    if not self._visual_meshes[key].is_watertight:
-                        self._visual_meshes[key] = self.robust_hole_filling(self._visual_meshes[key])
-                        if self._visual_meshes[key].is_watertight:
-                            print(f"Made mesh {key} watertight")
-                        else:
-                            print(f"Couldn't fix watertightness of mesh {key}")
 
                     # Set the link at it's origin point if needed
                     if link.visuals[0].origin is not None:
@@ -351,13 +344,6 @@ class RobotModel(ERobot):
 
                         # Handle watertight
                         self.sanitize_mesh(self._simple_visual_meshes[key])
-                        if not self._simple_visual_meshes[key].is_watertight:
-                            self._simple_visual_meshes[key] = self.robust_hole_filling(self._simple_visual_meshes[key])
-
-                            if self._simple_visual_meshes[key].is_watertight:
-                                print(f"Made simplified mesh {key} watertight")
-                            else:
-                                print(f"Couldn't fix watertightness of simplified mesh {key}")
                     else:
                         raise ValueError(f"Decimation ratio should be in ]0, 1] but was {decimation_ratio}")
 
