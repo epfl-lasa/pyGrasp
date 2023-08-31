@@ -2,14 +2,13 @@ from dataclasses import dataclass
 import typing as tp
 import numpy as np
 from tqdm import tqdm
-from trimesh.boolean import union
 import trimesh
 import pathlib
 import pickle
 import pandas as pd
 
 from . import utils as pgu
-from .tools.alphashape import alphashape, circumradius
+from .tools.alphashape import alphashape, circumradius, OPTIMAL_VERT_NUMBER
 from .robot_model import RobotModel
 
 
@@ -156,7 +155,7 @@ class ReachableSpace:
         for link_name in self._rs_df.columns:
             rs_scene = self.show_rs(link_name)
             if rs_scene is not None:
-                rs_scene.show()
+                rs_scene.show(caption=f"RS for {link_name}")
 
     def _solve_link(self, link_info: LinkInfo, angle_list: tp.List[np.ndarray]) -> None:
         # TODO: This method is optimized but became a bit messy. Clean up
@@ -294,6 +293,12 @@ class ReachableSpace:
                 # Replace parent mesh at 0 origin
                 parent_mesh.apply_transform(rs_backtransform)
 
+                current_alpha = self._find_max_alpha(parent_mesh)
+
+                # Used to incementally compute alphashape (for speed)
+                i_bottom = 0
+                preshaped_vert = np.ndarray([])
+                intermediary_ashape = None
                 for i, q_moving in tqdm(enumerate(angle_list[parent_link_info.joint_id])):
                     q_test[parent_link_info.joint_id] = q_moving
 
@@ -304,8 +309,21 @@ class ReachableSpace:
                     # Add vertices to list
                     vertices_list[i * nb_vertices:(i+1) * nb_vertices, :] = new_rs.vertices
 
-                self._rs_df.loc[stable_link.name, next_link_name] = \
-                    alphashape(vertices_list, self._find_max_alpha(parent_mesh))
+                    # Perform alpha shape. If we get too far from the optimal number of vertices, it will take forever
+                    if ((i + 1 - i_bottom) * nb_vertices) + preshaped_vert.shape[0] > OPTIMAL_VERT_NUMBER:
+                        concat_vert = np.concatenate((preshaped_vert, vertices_list[i_bottom*nb_vertices:(i+1)*nb_vertices, :]), axis=1)
+                        intermediary_ashape = alphashape(concat_vert, current_alpha)
+                        preshaped_vert = intermediary_ashape.vertices
+                        i_bottom = i+1
+
+                if i_bottom * nb_vertices < vertices_list.shape[0]:
+                    vertices_list = np.concatenate((preshaped_vert, vertices_list[i_bottom*nb_vertices:, :]), axis=1)
+                    self._rs_df.loc[stable_link.name, next_link_name] = \
+                        alphashape(vertices_list, current_alpha)
+                elif intermediary_ashape is not None:
+                    self._rs_df.loc[stable_link.name, next_link_name] = intermediary_ashape
+                else:
+                    raise ValueError("This shouldn't happen, the code is faulty. Please report through git issues.")
 
     def _create_link_map(self) -> None:
         """Generate a dictionary of links and their children to be able to brows them from base to tip
