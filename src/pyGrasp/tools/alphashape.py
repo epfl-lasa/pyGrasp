@@ -10,7 +10,12 @@ from scipy.spatial import Delaunay, ConvexHull
 import numpy as np
 from typing import Union, Tuple, List
 import trimesh
+import timeit
+from tqdm import tqdm
+import matplotlib.pyplot as plt
 
+
+OPTIMAL_VERT_NUMBER = 2000
 
 def circumcenter(points: Union[List[Tuple[float]], np.ndarray]) -> np.ndarray:
     """
@@ -127,11 +132,12 @@ def alphasimplices(points: Union[List[Tuple[float]], np.ndarray]) -> \
             logging.debug('Singular matrix. Likely caused by all points lying in an N-1 space.')
 
 
-def alphasimplices_vec(points: Union[List[Tuple[float]], np.ndarray]) -> Tuple[np.ndarray, np.ndarray]:
+def alphasimplices_vec(points: Union[List[Tuple[float]], np.ndarray, trimesh.Trimesh]) -> Tuple[np.ndarray, np.ndarray]:
 
+    if type(points) == trimesh.Trimesh:
+        raise ValueError("Alphasimplices for trimeshes is not implemented yet")
     coords = np.asarray(points)
-    tri = Delaunay(coords, incremental=True)
-
+    tri = Delaunay(coords)
     cr = circumradius_vec(tri.simplices, coords)
 
     return tri.simplices, cr
@@ -249,3 +255,17 @@ def check_circumradius(simplices, vertices) -> bool:
 
     return comp.all()
 
+
+def check_alpha_comp_time(nb_folds: int, nb_pt_max: int, increment: int) -> None:
+
+    np.random.seed(0)
+
+    nb_pts_ls = np.arange(increment, nb_pt_max, increment)
+    exec_times = np.zeros_like(nb_pts_ls)
+
+    for i, nb_pts in tqdm(enumerate(nb_pts_ls)):
+        point_set = 10 * np.random.rand(nb_pts, 3)
+        exec_times[i] = timeit.timeit(lambda: alphashape(point_set, 2), number=nb_folds)
+
+    plt.scatter(nb_pts_ls, exec_times)
+    plt.show()
