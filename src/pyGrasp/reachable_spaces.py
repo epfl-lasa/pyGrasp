@@ -67,8 +67,7 @@ class ReachableSpace:
 
         return self._root_link
 
-    @profile
-    def compute_rs(self, angle_step: float = .01, force_recompute: bool = False) -> None:
+    def compute_rs(self, angle_step: float = .1, force_recompute: bool = False) -> None:
 
         # Generate link map
         if not self._link_map:
