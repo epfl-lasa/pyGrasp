@@ -15,7 +15,8 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 
-OPTIMAL_VERT_NUMBER = 2000
+OPTIMAL_VERT_NUMBER = 30000   # This is estimated by empirically testing AS complexity
+
 
 def circumcenter(points: Union[List[Tuple[float]], np.ndarray]) -> np.ndarray:
     """
@@ -72,7 +73,7 @@ def circumradius_vec(simplices: np.ndarray, vertices: np.ndarray) -> np.ndarray:
       The circumradius of a given set of points.
     """
     NUMERICAL_PRECISION = 1e-9
-    simplices_coords = np.asarray(vertices[simplices], dtype=np.longdouble)
+    simplices_coords = np.asarray(vertices[simplices])
 
     a = np.linalg.norm(simplices_coords[:, 0, :] - simplices_coords[:, 1, :], axis=1)
     A = np.linalg.norm(simplices_coords[:, 2, :] - simplices_coords[:, 3, :], axis=1)
