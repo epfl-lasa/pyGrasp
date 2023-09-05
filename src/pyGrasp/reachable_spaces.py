@@ -67,6 +67,7 @@ class ReachableSpace:
 
         return self._root_link
 
+    @profile
     def compute_rs(self, angle_step: float = .01, force_recompute: bool = False) -> None:
 
         # Generate link map
@@ -191,6 +192,9 @@ class ReachableSpace:
 
             # Solve the link
             if parent_link is not None:
+                i_bottom = 0
+                preshaped_vert = np.zeros((0, 3))
+                intermediary_ashape = None
                 for i, q_moving in tqdm(enumerate(angle_list[link_info.joint_id])):
 
                     # Compute FK
@@ -207,8 +211,27 @@ class ReachableSpace:
 
                     vertices_list[i * nb_vertices:(i+1) * nb_vertices, :] = new_mesh.vertices
 
+                    # Perform alpha shape. If we get too far from the optimal number of vertices, it will take forever
+                    if ((i + 1 - i_bottom) * nb_vertices) + preshaped_vert.shape[0] > OPTIMAL_VERT_NUMBER:
+                        concat_vert = np.concatenate((preshaped_vert, vertices_list[i_bottom*nb_vertices:(i+1)*nb_vertices, :]), axis=0)
+                        intermediary_ashape = alphashape(concat_vert, link_info.alpha)
+
+                        # Simplify mesh to reasonable number of vertices if it is still too big.
+                        if intermediary_ashape.vertices.shape[0] > 2*OPTIMAL_VERT_NUMBER:
+                            intermediary_ashape = intermediary_ashape.simplify_quadric_decimation(0.5 * OPTIMAL_VERT_NUMBER)
+
+                        preshaped_vert = intermediary_ashape.vertices
+                        i_bottom = i+1
+
                 # Compute alpha shape
-                self._rs_df.loc[parent_link.name, link_info.name] = alphashape(vertices_list, link_info.alpha)
+                if i_bottom * nb_vertices < vertices_list.shape[0]:
+                    vertices_list = np.concatenate((preshaped_vert, vertices_list[i_bottom*nb_vertices:, :]), axis=0)
+                    self._rs_df.loc[parent_link.name, link_info.name] = \
+                        alphashape(vertices_list, link_info.alpha)
+                elif intermediary_ashape is not None:
+                    self._rs_df.loc[parent_link.name, link_info.name] = intermediary_ashape
+                else:
+                    raise ValueError("This shouldn't happen, the code is faulty. Please report through git issues.")
 
         # Link has no joint that directly moves it. So RS is link geometry
         elif self.robot_model.link_has_visual(link_info.name):     # TODO: How to handle the links w/o visual properly.
@@ -228,6 +251,7 @@ class ReachableSpace:
 
         link_info.rs_solved = True
 
+    #TODO: That is a lot of duplicated code
     def _propagate_link(self, parent_link_info, angle_list) -> None:
         """Propagating link deformation to all children of the current link
         """
@@ -297,7 +321,7 @@ class ReachableSpace:
 
                 # Used to incementally compute alphashape (for speed)
                 i_bottom = 0
-                preshaped_vert = np.ndarray([])
+                preshaped_vert = np.zeros((0, 3))
                 intermediary_ashape = None
                 for i, q_moving in tqdm(enumerate(angle_list[parent_link_info.joint_id])):
                     q_test[parent_link_info.joint_id] = q_moving
@@ -311,13 +335,17 @@ class ReachableSpace:
 
                     # Perform alpha shape. If we get too far from the optimal number of vertices, it will take forever
                     if ((i + 1 - i_bottom) * nb_vertices) + preshaped_vert.shape[0] > OPTIMAL_VERT_NUMBER:
-                        concat_vert = np.concatenate((preshaped_vert, vertices_list[i_bottom*nb_vertices:(i+1)*nb_vertices, :]), axis=1)
+                        concat_vert = np.concatenate((preshaped_vert, vertices_list[i_bottom*nb_vertices:(i+1)*nb_vertices, :]), axis=0)
                         intermediary_ashape = alphashape(concat_vert, current_alpha)
+
+                        # Simplify mesh to reasonable number of vertices if it is still too big.
+                        if intermediary_ashape.vertices.shape[0] > 2*OPTIMAL_VERT_NUMBER:
+                            intermediary_ashape = intermediary_ashape.simplify_quadric_decimation(0.5 * OPTIMAL_VERT_NUMBER)
                         preshaped_vert = intermediary_ashape.vertices
                         i_bottom = i+1
 
                 if i_bottom * nb_vertices < vertices_list.shape[0]:
-                    vertices_list = np.concatenate((preshaped_vert, vertices_list[i_bottom*nb_vertices:, :]), axis=1)
+                    vertices_list = np.concatenate((preshaped_vert, vertices_list[i_bottom*nb_vertices:, :]), axis=0)
                     self._rs_df.loc[stable_link.name, next_link_name] = \
                         alphashape(vertices_list, current_alpha)
                 elif intermediary_ashape is not None:
