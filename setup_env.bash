@@ -41,6 +41,8 @@ echo "Activating venv..."
 source .venv/bin/activate        # Activate venv
 echo "Done"
 
+echo "Installing python libraries"
+pip install --upgrade pip         # We need the latest version to have editable mode with a .toml
 pip install -r requirements.txt  # Install package requirements
 python3.9 -m build               # Build package
-python3.9 -m pip install -e .    # Install package. -e for editable, developer mode. 
+python3.9 -m pip install -e .    # Install package. -e for editable, developer mode.

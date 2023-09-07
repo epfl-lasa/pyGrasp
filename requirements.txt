@@ -5,7 +5,7 @@ ipython
 matplotlib
 yourdfpy
 trimesh
-pyglet==1.5.27
+pyglet<2
 scikit-learn
 tqdm
 open3d
