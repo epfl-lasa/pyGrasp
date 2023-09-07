@@ -15,7 +15,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 
-OPTIMAL_VERT_NUMBER = 30000   # This is estimated by empirically testing AS complexity
+OPTIMAL_VERT_NUMBER = np.inf   # This might help in certain cases but there is no guarantee
 
 
 def circumcenter(points: Union[List[Tuple[float]], np.ndarray]) -> np.ndarray:
