@@ -21,7 +21,7 @@ Offline analysis of the robot kinematic model to construct:
 - **Self-collision map**
 
 ### 3. Grasp Synthesis
-Given the robot and the model of the target object, this functional module deals with: 
+Given the robot and the model of the target object, this functional module deals with:
 - **Problem formulation**
 - **Solving optimization**: currently, `SciPy` package is used to solve the optimization problem with `scipy.optimize()`.
 
@@ -69,7 +69,7 @@ python3.9 -m venv .venv          # Create venv (use any python version you like 
 source .venv/bin/activate        # Activate venv
 pip install -r requirements.txt  # Install package requirements
 python -m build                  # Build package
-pip install -e .                 # Install package. -e for editable, developer mode. 
+pip install -e .                 # Install package. -e for editable, developer mode.
 ```
 
 Or, for a faster onliner, you can use the following script
@@ -87,3 +87,21 @@ python scripts/example_fk.py                 # Run an example of simple forward 
 python scripts/example_learning_geometry.py  # Run an example of a robot learning its links geometry and displays results
 python scripts/example_extended_fk.py        # Run an example of the forward kinematics to an arbitrary point on the robot
 ```
+
+
+### Developpement, issues and bugs:
+
+## Issues and improvements
+- [ ] RS more precise through heavier computations
+- [x] Fix issue with os not propagating correctly
+- [ ] Find an efficient way to get GUI feedback from ssh connection with pyglet
+- [x] RS seems unlikely with allegro... pinpoint why (Done, fixed bug regarding fixed links in rs)
+  - link_11.0_tip
+  - link_7.0_tip
+  - link_3.0_tip
+  - link_15.0_tip
+- [ ] Add iCub geometry
+- [ ] Extend framework for as many links as we want
+- [ ] Handle redundant code in geometry propagation
+- [ ] Figure out how to integrate contact directionnality in OS's
+
