@@ -180,8 +180,8 @@ class ReachableSpace:
             if link_info.alpha is None:
                         link_info.alpha = self._find_max_alpha(new_mesh)
             self._rs_df.loc[link_info.name, link_info.name] = alphashape(new_mesh.vertices, link_info.alpha)
-            self._rs_df.loc[link_info.name, link_info.name] = \
-                RobotModel.robust_hole_filling(self._rs_df.loc[link_info.name, link_info.name])
+            # self._rs_df.loc[link_info.name, link_info.name] = \
+            #     RobotModel.robust_hole_filling(self._rs_df.loc[link_info.name, link_info.name])
 
         # Iterate over all angles
         if link_info.joint_id is not None:
@@ -234,7 +234,7 @@ class ReachableSpace:
 
         # Link has no joint that directly moves it. So RS is link geometry
         elif self.robot_model.link_has_visual(link_info.name):     # TODO: How to handle the links w/o visual properly.
-            new_mesh = self.robot_model.get_mesh_at_q(None, link_info.name)
+            new_mesh = self.robot_model.get_mesh_at_q(self.robot_model.qz(), link_info.name)
             max_alpha = self._find_max_alpha(new_mesh)
 
             # This is done for the case the joint between link is just "static"
@@ -297,7 +297,7 @@ class ReachableSpace:
                 # This shouldn't happen either
                 if type(self._rs_df.loc[previous_parent.name, next_link_name]) == float and \
                         np.isnan(self._rs_df.loc[previous_parent.name, next_link_name]):
-                    raise ValueError("Trying to propagate from a link whose chilren have not all been solved")
+                    raise ValueError("Trying to propagate from a link whose children have not all been solved")
 
                 # Decimate RS if we estimate it is too big for propagation
                 parent_mesh = self._rs_df.loc[previous_parent.name, next_link_name].copy()
@@ -483,3 +483,19 @@ class ReachableSpace:
                     return link_2_parent.name
 
         return None
+
+    def _find_all_parent_jnts(self, link: str) -> tp.List[int]:
+
+        parent_jnts_list = []
+
+        while link is not None:
+
+            link_info = self._link_map[link]
+
+            if link_info.joint_id is not None:
+                parent_jnts_list.append(link_info.joint_id)
+
+            link = link_info.parent_name
+
+        return parent_jnts_list
+
