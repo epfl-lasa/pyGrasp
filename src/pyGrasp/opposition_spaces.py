@@ -11,6 +11,7 @@ from tqdm import tqdm
 from .robot_model import RobotModel
 from .reachable_spaces import ReachableSpace
 from .tools.alphashape import alphashape
+from . import utils as pgu
 
 
 class OppositionSpace(ReachableSpace):
@@ -33,7 +34,7 @@ class OppositionSpace(ReachableSpace):
 
     def compute_os(self, force_recompute: bool = True) -> None:
 
-        os_file_name = pathlib.Path(self.robot_model.name + "_os" + ".pickle")
+        os_file_name = pgu.CACHE_FOLDER / (self.robot_model.name + "_os" + ".pickle")
         # Computing OS
         if not os_file_name.is_file() or force_recompute:
             link_names = [link_name for link_name in self._rs_df.columns]
