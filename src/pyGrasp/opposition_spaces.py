@@ -156,7 +156,7 @@ class OppositionSpace(ReachableSpace):
 
         return best_os_combination
 
-    def _propagate_os_geometry(self, link_1: str, link_2: str, common_parent: str, angle_step: float = 0.01) -> None:
+    def _propagate_os_geometry(self, link_1: str, link_2: str, common_parent: str, angle_step: float = 0.1) -> None:
 
         angle_list = [np.arange(q_min, q_max, angle_step) for (q_min, q_max) in self.robot_model.qlim.transpose()]
 
