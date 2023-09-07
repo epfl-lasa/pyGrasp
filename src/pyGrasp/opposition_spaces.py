@@ -99,12 +99,17 @@ class OppositionSpace(ReachableSpace):
 
         return robot_scene
 
-    def show_all_os(self) -> None:
+    def show_all_os(self, max_plots: int = np.inf) -> None:
 
+        nb_shown = 0
         for link_1, link_2 in self.os_set:
             os_scene = self.show_os(link_1, link_2)
             if os_scene is not None:
                 os_scene.show(caption=f"OS between {link_1} and {link_2}")
+                nb_shown += 1
+
+            if nb_shown >= max_plots:
+                break
 
     def show_os_matrix(self, obj_diameter: float = 0) -> None:
 

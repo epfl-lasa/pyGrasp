@@ -8,7 +8,7 @@ from pyGrasp.opposition_spaces import OppositionSpace
 
 
 # Choose your example robot here
-SELECTED_ROBOT = pgu.ALLEGRO_LEFT_URDF_PATH  # Find all possible robot in the utils.py file
+SELECTED_ROBOT = pgu.IIWA7_URDF_PATH  # Find all possible robot in the utils.py file
 
 
 def main() -> None:
@@ -33,7 +33,7 @@ def main() -> None:
     opp_s.compute_os(force_recompute=False)
 
     # Show all os's to check
-    opp_s.show_all_os()
+    opp_s.show_all_os(max_plots=30)
     opp_s.show_os_matrix(obj_diameter=0.3)
 
 
