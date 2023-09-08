@@ -161,7 +161,7 @@ class GraspSynthesizer():
         constraints.append(self._quaternion_constraint(nb_joints))
         # constraints.append(self._global_collision_constraint(object, active_joints))
         # constraints.append(self._contact_constraint_on_learned_geom(object, active_joints, 0, link_1))
-        constraints.append(self._contact_constrain_on_real_geom(object, active_joints, 1, link_2))
+        constraints.append(self._contact_constraint_on_real_geom(object, active_joints, 1, link_2))
         constraints.append(self._self_collision_constraint(active_joints))
         constraints.append(self._robot_object_collision_constraint(object, active_joints))
 
@@ -266,11 +266,11 @@ class GraspSynthesizer():
 
         return constraint
 
-    def _contact_constrain_on_real_geom(self,
-                                        object: trimesh.Trimesh,
-                                        active_joints: tp.List[int],
-                                        contact_number: int,
-                                        link_name: str) -> tp.Dict:
+    def _contact_constraint_on_real_geom(self,
+                                         object: trimesh.Trimesh,
+                                         active_joints: tp.List[int],
+                                         contact_number: int,
+                                         link_name: str) -> tp.Dict:
 
         def constraint_cb(x: tp.List[float],
                           object: trimesh.Trimesh,
@@ -296,7 +296,7 @@ class GraspSynthesizer():
             obj_in_place.apply_transform(obj_transform)
 
             # Compute distance between object and contact point
-            contact_dst = -trimesh.proximity.signed_distance(obj_in_place, real_robot_contact_point.transpose())[0]
+            contact_dst = -trimesh.proximity.signed_distance(obj_in_place, real_robot_contact_point)[0]
 
             # Apply some tolerance
             if -self.CONTACT_DST_TOL < contact_dst < self.CONTACT_DST_TOL:
