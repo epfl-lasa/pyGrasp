@@ -50,7 +50,7 @@ class GraspSynthesizer():
         t2 = time.time()
         print(f"Optimization time: {t2-t1}")
         print(f"Optimization result: {opt_result}")
-        self._show_optim_result(opt_result.x, jnts, object)
+        self._show_optim_result(opt_result.x, jnts, object, [link_1, link_2])
         breakpoint()
 
     def _show_optim_result(self, x: tp.List[float], active_jnts: tp.List[int], object: trimesh.Trimesh, links: tp.List[str]) -> None:
@@ -61,22 +61,25 @@ class GraspSynthesizer():
         scene = self._robot_model.plot_robot(q)
 
         # Add object to scene
+        cyan = [0, 255, 255, 210]
         quat = x[len(active_jnts) + self.NB_CONTACTS * 2 + self.ND_DIM_3D:]
         trans = x[len(active_jnts) + self.NB_CONTACTS * 2: len(active_jnts) + self.NB_CONTACTS * 2 + self.ND_DIM_3D]
         obj_transform = GraspSynthesizer.trans_quat_to_mat(trans, quat)
         obj_inplace = object.copy().apply_transform(obj_transform)
+        obj_inplace.visual.face_colors = np.array([cyan] * obj_inplace.faces.shape[0])
         scene.add_geometry(obj_inplace)
 
-        breakpoint()
         # TODO: Add contact points
+        red = [255, 100, 100, 255]
         contact_spheres = []
         for i in range(self.NB_CONTACTS):
-            contact_spheres.append(trimesh.creation.icosphere(radius=0.001))
+            contact_spheres.append(trimesh.creation.icosphere(radius=0.005))
             contact_param = x[len(active_jnts)+2*i:len(active_jnts)+2*i+2]
             robot_contact_point = self._robot_model.link_param_to_abs(links[i], contact_param[0], contact_param[1], q)
             contact_transform = np.identity(4)
-            contact_transform[:3, 4] = robot_contact_point
+            contact_transform[:3, 3] = np.squeeze(robot_contact_point)
             contact_spheres[-1].apply_transform(contact_transform)
+            contact_spheres[-1].visual.face_colors = np.array([red] * contact_spheres[-1].faces.shape[0])
             scene.add_geometry(contact_spheres[-1])
 
         scene.show()
@@ -157,8 +160,8 @@ class GraspSynthesizer():
         constraints = []
 
         constraints.append(self._quaternion_constraint(nb_joints))
-        constraints.append(self._global_collision_constraint(object, active_joints))
-        constraints.append(self._contact_constraint_on_learned_geom(object, active_joints, 0, link_1))
+        #constraints.append(self._global_collision_constraint(object, active_joints))
+        #constraints.append(self._contact_constraint_on_learned_geom(object, active_joints, 0, link_1))
         constraints.append(self._contact_constraint_on_learned_geom(object, active_joints, 1, link_2))
         # constraints.append(self._self_collision_constraint(active_joints))
         # constraints.append(self._robot_object_collision_constraint(object, active_joints))
