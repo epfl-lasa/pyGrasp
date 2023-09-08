@@ -104,4 +104,20 @@ python scripts/example_extended_fk.py        # Run an example of the forward kin
 - [ ] Extend framework for as many links as we want
 - [ ] Handle redundant code in geometry propagation
 - [ ] Figure out how to integrate contact directionnality in OS's
+- [ ] Check about abnormal termination of the optimizer
+- [ ] Add jacobians for constraints
+- [ ] Use self collision map to speed up collision computations
+- [ ] Train ML model to compute force closure property
+- [ ] Assess computational complexity of just validating force colure after sampling grasp configurations
+- [ ] Clean up redundant code in robot model collision checks
+- [ ] Differentiate dev from prod env
+- [ ] Add robot composition
+
+# TODO list:
+
+- [ ] Integrate nn distance function
+- [ ] Entire framework as feasability problem
+- [ ] Extend the number of contacts (realise for 3-4 contact points)
+- [ ] Force closure for multiple contacts
+- [ ] Add ICub geometry
 
