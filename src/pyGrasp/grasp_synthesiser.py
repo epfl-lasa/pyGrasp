@@ -14,6 +14,7 @@ class GraspSynthesizer():
 
     NB_CONTACTS = 2
     ND_DIM_3D = 3
+    CONTACT_DST_TOL = 1e-6
 
     def __init__(self, robot_model: RobotModel, force_recompute: bool = False) -> None:
         self._robot_model = robot_model
@@ -92,7 +93,6 @@ class GraspSynthesizer():
 
     @staticmethod
     def objective_function(x: tp.List[float]) -> float:
-        print(x)
         return 1
 
     def _get_x0(self, jnts: tp.List[int], nb_params: int) -> np.ndarray:
@@ -250,7 +250,57 @@ class GraspSynthesizer():
             obj_in_place.apply_transform(obj_transform)
 
             # Compute distance between object and contact point
-            return trimesh.proximity.signed_distance(obj_in_place, robot_contact_point.transpose())
+            contact_dst = -trimesh.proximity.signed_distance(obj_in_place, robot_contact_point.transpose())[0]
+
+            # Apply some tolerance
+            if -self.CONTACT_DST_TOL < contact_dst < self.CONTACT_DST_TOL:
+                contact_dst = 0
+
+            return contact_dst
+
+        constraint = {}
+        constraint['type'] = 'eq'
+        constraint['fun'] = lambda x: constraint_cb(x, object, active_joints, contact_number, link_name)
+
+        return constraint
+
+    def _contact_constrain_on_real_geom(self,
+                                        object: trimesh.Trimesh,
+                                        active_joints: tp.List[int],
+                                        contact_number: int,
+                                        link_name: str) -> tp.Dict:
+
+        def constraint_cb(x: tp.List[float],
+                          object: trimesh.Trimesh,
+                          active_joints: tp.List[int],
+                          contact_number: int,
+                          link_name: str) -> float:
+
+            nb_joints = len(active_joints)
+
+            # Get contact point on the robot
+            contact_param = x[nb_joints+2*contact_number:nb_joints+2*contact_number+2]
+            q = self._robot_model.qz()
+            q[active_joints] = x[:nb_joints]
+            robot_contact_point = self._robot_model.link_param_to_abs(link_name, contact_param[0], contact_param[1], q)
+            link_mesh = self._robot_model.get_mesh_at_q(q, link_name)
+            real_robot_contact_point, _, _ = trimesh.proximity.closest_points(link_mesh, robot_contact_point.transpose())
+
+            # Get object at its position
+            quat = x[nb_joints + self.NB_CONTACTS * 2 + self.ND_DIM_3D:]
+            trans = x[nb_joints + self.NB_CONTACTS * 2: nb_joints + self.NB_CONTACTS * 2 + self.ND_DIM_3D]
+            obj_transform = GraspSynthesizer.trans_quat_to_mat(trans, quat)
+            obj_in_place = object.copy()
+            obj_in_place.apply_transform(obj_transform)
+
+            # Compute distance between object and contact point
+            contact_dst = -trimesh.proximity.signed_distance(obj_in_place, real_robot_contact_point.transpose())[0]
+
+            # Apply some tolerance
+            if -self.CONTACT_DST_TOL < contact_dst < self.CONTACT_DST_TOL:
+                contact_dst = 0
+
+            return contact_dst
 
         constraint = {}
         constraint['type'] = 'eq'
