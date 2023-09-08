@@ -355,13 +355,19 @@ class RobotModel(ERobot):
         if object is not None:
             cm.add_object('object', object)
 
-        is_collision, data_ls = cm.in_collision_internal(return_data=True)
+        is_collision, names, data_ls = cm.in_collision_internal(return_data=True, return_names=True)
 
+        dst = 0
         if is_collision:
-            dst = -max([data.depth for data in data_ls])
-        else:
-            dst = cm.min_distance_internal()
+            for name, collision_data in zip(names, data_ls):
 
+                # Only for non-consecutive links
+                if 'object' not in name:
+                    if (self.link_dict[name[0]].parent is not None and self.link_dict[name[0]].parent.name == name[1]) or \
+                       (self.link_dict[name[1]].parent is not None and self.link_dict[name[1]].parent.name == name[0]):
+                        continue
+
+                dst = min(dst, -collision_data.depth)
         return dst
 
     def check_self_collisions(self, q: tp.List[float]) -> float:
@@ -370,12 +376,21 @@ class RobotModel(ERobot):
         for link_name in self._simple_visual_meshes.keys():
             cm.add_object(link_name, self.get_mesh_at_q(q, link_name))
 
-        is_collision, data_ls = cm.in_collision_internal(return_data=True)
+        is_collision, names, data_ls = cm.in_collision_internal(return_names=True, return_data=True)
 
+        dst = 0
         if is_collision:
-            dst = -max([data.depth for data in data_ls])
-        else:
-            dst = cm.min_distance_internal()
+            for name, collision_data in zip(names, data_ls):
+
+                # Only for non-consecutive links
+                if (self.link_dict[name[0]].parent is not None and self.link_dict[name[0]].parent.name == name[1]) or \
+                   (self.link_dict[name[1]].parent is not None and self.link_dict[name[1]].parent.name == name[0]):
+                    continue
+
+                dst = min(dst, -collision_data.depth)
+
+        # TODO: extend distance function to non-collided space
+
         return dst
 
     def check_object_collisions(self, q: tp.List[float], object: trimesh.Trimesh) -> float:
