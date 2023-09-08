@@ -16,3 +16,4 @@ mypy
 pymeshfix
 pyvista
 line_profiler
+python-fcl
