@@ -48,7 +48,7 @@ class GraspSynthesizer():
                               x0=x0,
                               bounds=bnds,
                               constraints=constraints,
-                              options={'maxiter': 100,
+                              options={'maxiter': 1000,
                                        'disp': True})
         t2 = time.time()
         print(f"Optimization time: {t2-t1}")
@@ -177,7 +177,7 @@ class GraspSynthesizer():
             quat = x[nb_jnts + self.NB_CONTACTS * 2 + self.ND_DIM_3D:]
             jac = np.zeros((len(x)))
             denom = np.linalg.norm(quat)
-            jac[nb_jnts + self.NB_CONTACTS * 2 + self.ND_DIM_3D:] = [quat_i / denom for quat_i in quat]
+            jac[nb_jnts + self.NB_CONTACTS * 2 + self.ND_DIM_3D:] = quat / denom
             return jac
 
         constraint = {}
