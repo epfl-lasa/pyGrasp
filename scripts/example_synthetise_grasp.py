@@ -1,6 +1,7 @@
 """An example on how to use grasp synthesis in this package
 """
 import random
+import trimesh
 
 import pyGrasp.utils as pgu
 from pyGrasp.robot_model import RobotModel
@@ -27,7 +28,18 @@ def main() -> None:
 
     # Create reachable space
     gs = GraspSynthesizer(robot_model)
-    gs.sythetize_grasp()
+
+    # Create an object to grasp
+    obj_to_grasp_prim = trimesh.primitives.Sphere(radius=0.2)
+    obj_to_grasp = trimesh.Trimesh(faces=obj_to_grasp_prim.faces, vertices=obj_to_grasp_prim.vertices)
+
+    # Synthesize grasp
+    best_links = gs._os.get_best_os(point_cloud=obj_to_grasp.vertices, excluded_links=['iiwa_link_0'])
+    if best_links is not None:
+        print(f"Grasp synthesis between {best_links[0]} and {best_links[1]}")
+        gs.synthtize_in_os(best_links[0], best_links[1], obj_to_grasp)
+    else:
+        print("Couldn't find an OS fitting the object")
 
 
 if __name__ == "__main__":
