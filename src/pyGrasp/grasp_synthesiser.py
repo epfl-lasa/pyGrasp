@@ -1,5 +1,6 @@
 from scipy.optimize import minimize
 import numpy as np
+from math import sqrt
 import typing as tp
 import trimesh
 from scipy.spatial.transform import Rotation
@@ -46,11 +47,14 @@ class GraspSynthesizer():
         opt_result = minimize(fun=lambda x: GraspSynthesizer.objective_function(x),
                               x0=x0,
                               bounds=bnds,
-                              constraints=constraints)
+                              constraints=constraints,
+                              options={'maxiter': 100,
+                                       'disp': True})
         t2 = time.time()
         print(f"Optimization time: {t2-t1}")
         print(f"Optimization result: {opt_result}")
         self._show_optim_result(opt_result.x, jnts, object, [link_1, link_2])
+        breakpoint()
 
     def _show_optim_result(self, x: tp.List[float], active_jnts: tp.List[int], object: trimesh.Trimesh, links: tp.List[str]) -> None:
 
@@ -160,7 +164,7 @@ class GraspSynthesizer():
 
         constraints.append(self._quaternion_constraint(nb_joints))
         # constraints.append(self._global_collision_constraint(object, active_joints))
-        # constraints.append(self._contact_constraint_on_learned_geom(object, active_joints, 0, link_1))
+        constraints.append(self._contact_constraint_on_real_geom(object, active_joints, 0, link_1))
         constraints.append(self._contact_constraint_on_real_geom(object, active_joints, 1, link_2))
         constraints.append(self._self_collision_constraint(active_joints))
         constraints.append(self._robot_object_collision_constraint(object, active_joints))
@@ -168,9 +172,18 @@ class GraspSynthesizer():
         return constraints
 
     def _quaternion_constraint(self, nb_jnts: int) -> tp.Dict:
+
+        def jacobian(x: tp.List[float], nb_jnts: int) -> np.ndarray:
+            quat = x[nb_jnts + self.NB_CONTACTS * 2 + self.ND_DIM_3D:]
+            jac = np.zeros((len(x)))
+            denom = np.linalg.norm(quat)
+            jac[nb_jnts + self.NB_CONTACTS * 2 + self.ND_DIM_3D:] = [quat_i / denom for quat_i in quat]
+            return jac
+
         constraint = {}
         constraint['type'] = 'eq'
         constraint['fun'] = lambda x: np.linalg.norm(x[nb_jnts + self.NB_CONTACTS * 2 + self.ND_DIM_3D:]) - 1
+        constraint['jac'] = lambda x: jacobian(x, nb_jnts)
         return constraint
 
     def _global_collision_constraint(self, object: trimesh.Trimesh, active_joints: tp.List[int]) -> tp.Dict:
