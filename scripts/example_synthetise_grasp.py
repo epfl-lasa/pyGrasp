@@ -30,7 +30,7 @@ def main() -> None:
     gs = GraspSynthesizer(robot_model)
 
     # Create an object to grasp
-    obj_to_grasp_prim = trimesh.primitives.Sphere(radius=0.2)
+    obj_to_grasp_prim = trimesh.primitives.Sphere(radius=0.1)
     obj_to_grasp = trimesh.Trimesh(faces=obj_to_grasp_prim.faces, vertices=obj_to_grasp_prim.vertices)
 
     # Synthesize grasp
