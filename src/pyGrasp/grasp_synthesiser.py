@@ -14,7 +14,7 @@ class GraspSynthesizer():
 
     NB_CONTACTS = 2
     ND_DIM_3D = 3
-    CONTACT_DST_TOL = 1e-6
+    CONTACT_DST_TOL = 0
 
     def __init__(self, robot_model: RobotModel, force_recompute: bool = False) -> None:
         self._robot_model = robot_model
@@ -51,7 +51,6 @@ class GraspSynthesizer():
         print(f"Optimization time: {t2-t1}")
         print(f"Optimization result: {opt_result}")
         self._show_optim_result(opt_result.x, jnts, object, [link_1, link_2])
-        breakpoint()
 
     def _show_optim_result(self, x: tp.List[float], active_jnts: tp.List[int], object: trimesh.Trimesh, links: tp.List[str]) -> None:
 
@@ -160,11 +159,11 @@ class GraspSynthesizer():
         constraints = []
 
         constraints.append(self._quaternion_constraint(nb_joints))
-        #constraints.append(self._global_collision_constraint(object, active_joints))
-        #constraints.append(self._contact_constraint_on_learned_geom(object, active_joints, 0, link_1))
-        constraints.append(self._contact_constraint_on_learned_geom(object, active_joints, 1, link_2))
-        # constraints.append(self._self_collision_constraint(active_joints))
-        # constraints.append(self._robot_object_collision_constraint(object, active_joints))
+        # constraints.append(self._global_collision_constraint(object, active_joints))
+        # constraints.append(self._contact_constraint_on_learned_geom(object, active_joints, 0, link_1))
+        constraints.append(self._contact_constrain_on_real_geom(object, active_joints, 1, link_2))
+        constraints.append(self._self_collision_constraint(active_joints))
+        constraints.append(self._robot_object_collision_constraint(object, active_joints))
 
         return constraints
 
@@ -287,7 +286,7 @@ class GraspSynthesizer():
             q[active_joints] = x[:nb_joints]
             robot_contact_point = self._robot_model.link_param_to_abs(link_name, contact_param[0], contact_param[1], q)
             link_mesh = self._robot_model.get_mesh_at_q(q, link_name)
-            real_robot_contact_point, _, _ = trimesh.proximity.closest_points(link_mesh, robot_contact_point.transpose())
+            real_robot_contact_point, _, _ = trimesh.proximity.closest_point(link_mesh, robot_contact_point.transpose())
 
             # Get object at its position
             quat = x[nb_joints + self.NB_CONTACTS * 2 + self.ND_DIM_3D:]
