@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from itertools import combinations
 import typing as tp
 from tqdm import tqdm
+from scipy.spatial.distance import cdist
 
 from .robot_model import RobotModel
 from .reachable_spaces import ReachableSpace
@@ -19,8 +20,14 @@ class OppositionSpace(ReachableSpace):
     @staticmethod
     def get_point_cloud_diameter(point_cloud) -> float:
         point_cloud = np.asarray(point_cloud)
-        _, radius, _ = trimesh.nsphere(point_cloud)
+        _, radius, _ = trimesh.nsphere.fit_nsphere(point_cloud)
         return radius * 2
+
+    @staticmethod
+    def point_cloud_distances(pc1, pc2) -> tp.Tuple[float, float]:
+        distances = cdist(pc1, pc2)
+        distances = np.abs(distances)
+        return (np.min(distances), np.max(distances))
 
     def __init__(self, robot_model: RobotModel) -> None:
 
@@ -63,10 +70,8 @@ class OppositionSpace(ReachableSpace):
 
                         # Get min and max OS
                         # TODO: This is not perfect but close enough
-                        distances = trimesh.proximity.signed_distance(self._rs_df.loc[common_parent, base],
+                        min_dst, max_dst = self.point_cloud_distances(self._rs_df.loc[common_parent, base].vertices,
                                                                       self._rs_df.loc[common_parent, target].vertices)
-                        min_dst = distances.min()
-                        max_dst = distances.max()
                         self.os_dist.at[base, target] = {'min': min_dst, 'max': max_dst}
                         self.os_dist.at[target, base] = self.os_dist.at[base, target]
 
@@ -155,9 +160,9 @@ class OppositionSpace(ReachableSpace):
         for link_1, link_2 in self.os_set:
             if (link_1 not in excluded_links) and (link_2 not in excluded_links):
                 if self.os_dist.loc[link_1, link_2]['min'] < obj_diameter < self.os_dist.loc[link_1, link_2]['max']:
-                    if self.os_dist[link_1, link_2]['max'] > max_os_dst:
+                    if self.os_dist.loc[link_1, link_2]['max'] > max_os_dst:
                         best_os_combination = (link_1, link_2)
-                        max_os_dst = self.os_dist[link_1, link_2]['max']
+                        max_os_dst = self.os_dist.loc[link_1, link_2]['max']
 
         return best_os_combination
 
