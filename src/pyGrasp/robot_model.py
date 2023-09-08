@@ -230,6 +230,34 @@ class RobotModel(ERobot):
                         triangles=self._visual_meshes[link_name].faces,
                         alpha=0.5)
 
+    def link_param_to_abs(self,
+                          link_name: str,
+                          theta: float,
+                          phi: float,
+                          q: tp.List[float],
+                          base_link: tp.Optional[str] = None) -> np.ndarray:
+
+        cart_coords_local = self.link_param_to_link_abs(link_name, theta, phi)
+
+        if base_link is None:
+            base_link = self.base_link
+
+        # Perform forward kinematic to link
+        fk_result = self.fkine(q, link_name, base_link)
+
+        # Pass cart mesh to absolute
+        cart_mesh_coord_abs = np.dot(fk_result, np.concatenate((cart_coords_local, np.array([[1]])), axis=1).transpose())[0:3]
+
+        return cart_mesh_coord_abs
+
+    def link_param_to_link_abs(self, link_name: str, theta: float, phi: float) -> np.ndarray:
+
+        rho = self._learned_geometries[link_name].predict(np.array([[theta, phi]]))
+        sphe_coords = np.array([[theta, phi, rho[0]]])
+        cart_coords = RobotModel.pol_to_cart(sphe_coords)
+        cart_coords = cart_coords + self._visual_meshes[link_name].center_mass
+        return cart_coords
+
     def extended_fk(self,
                     q: np.ndarray,
                     mesh_theta: float,
@@ -247,14 +275,8 @@ class RobotModel(ERobot):
         # Perform forward kinematic to link
         fk_result = self.fkine(q, tip_link, base_link)
 
-        # Predict mesh rho
-        mesh_rho = self._learned_geometries[tip_link.name].predict(np.array([[mesh_theta, mesh_phi]]))
-
-        # Get mesh cartesian coordinates
-        cart_mesh_coord = RobotModel.pol_to_cart(np.array([[mesh_theta, mesh_phi, mesh_rho[0]]]))
-
-        # Center back mesh coord
-        cart_mesh_coord = cart_mesh_coord + self._visual_meshes[tip_link.name].center_mass
+        # Get point from learned geometry
+        cart_mesh_coord = self.link_param_to_link_abs(tip_link.name, mesh_theta, mesh_phi)
 
         # Pass cart mesh to absolute
         cart_mesh_coord_abs = np.dot(fk_result, np.concatenate((cart_mesh_coord, np.array([[1]])), axis=1).transpose())[0:3]
@@ -322,6 +344,54 @@ class RobotModel(ERobot):
 
     def link_has_visual(self, link_name: str) -> bool:
         return (len(self._visu_urdf.link_map[link_name].visuals) > 0)
+
+    def check_collisions(self, q: tp.List[float], object: tp.Optional[trimesh.Trimesh]) -> float:
+
+        cm = trimesh.collision.CollisionManager()
+
+        for link_name in self._simple_visual_meshes.keys():
+            cm.add_object(link_name, self.get_mesh_at_q(q, link_name))
+
+        if object is not None:
+            cm.add_object('object', object)
+
+        is_collision, data_ls = cm.in_collision_internal(return_data=True)
+
+        if is_collision:
+            dst = -max([data.depth for data in data_ls])
+        else:
+            dst = cm.min_distance_internal()
+
+        return dst
+
+    def check_self_collisions(self, q: tp.List[float]) -> float:
+        cm = trimesh.collision.CollisionManager()
+
+        for link_name in self._simple_visual_meshes.keys():
+            cm.add_object(link_name, self.get_mesh_at_q(q, link_name))
+
+        is_collision, data_ls = cm.in_collision_internal(return_data=True)
+
+        if is_collision:
+            dst = -max([data.depth for data in data_ls])
+        else:
+            dst = cm.min_distance_internal()
+        return dst
+
+    def check_object_collisions(self, q: tp.List[float], object: trimesh.Trimesh) -> float:
+        cm = trimesh.collision.CollisionManager()
+
+        for link_name in self._simple_visual_meshes.keys():
+            cm.add_object(link_name, self.get_mesh_at_q(q, link_name))
+
+        is_collision, data_ls = cm.in_collision_single(object, return_data=True)
+
+        if is_collision:
+            dst = -max([data.depth for data in data_ls])
+        else:
+            dst = cm.min_distance_single(object)
+
+        return dst
 
     def _load_visual_meshes(self, decimation_ratio: float = 0.1) -> None:
         if self._visu_urdf is not None:
