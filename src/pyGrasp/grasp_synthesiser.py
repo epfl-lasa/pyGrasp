@@ -15,7 +15,7 @@ class GraspSynthesizer():
 
     NB_CONTACTS = 2
     ND_DIM_3D = 3
-    CONTACT_DST_TOL = 0
+    CONTACT_DST_TOL = 1e-3
 
     def __init__(self, robot_model: RobotModel, force_recompute: bool = False) -> None:
         self._robot_model = robot_model
@@ -267,9 +267,9 @@ class GraspSynthesizer():
             # Compute distance between object and contact point
             contact_dst = -trimesh.proximity.signed_distance(obj_in_place, robot_contact_point.transpose())[0]
 
-            # Apply some tolerance
-            if -self.CONTACT_DST_TOL < contact_dst < self.CONTACT_DST_TOL:
-                contact_dst = 0
+            # Apply some threshold to simplify contact solving
+            if 0 < contact_dst:
+                contact_dst -= self.CONTACT_DST_TOL
 
             return contact_dst
 
