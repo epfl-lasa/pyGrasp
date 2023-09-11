@@ -89,9 +89,10 @@ python scripts/example_extended_fk.py        # Run an example of the forward kin
 ```
 
 
-### Developpement, issues and bugs:
+### Developpement, issues and bugs
 
-## Issues and improvements
+#### Issues and improvements
+
 - [ ] RS more precise through heavier computations
 - [x] Fix issue with os not propagating correctly
 - [ ] Find an efficient way to get GUI feedback from ssh connection with pyglet
@@ -105,19 +106,23 @@ python scripts/example_extended_fk.py        # Run an example of the forward kin
 - [ ] Handle redundant code in geometry propagation
 - [ ] Figure out how to integrate contact directionnality in OS's
 - [ ] Check about abnormal termination of the optimizer
-- [ ] Add jacobians for constraints
+- [x] Add jacobians for quaternion
 - [ ] Use self collision map to speed up collision computations
 - [ ] Train ML model to compute force closure property
 - [ ] Assess computational complexity of just validating force colure after sampling grasp configurations
 - [ ] Clean up redundant code in robot model collision checks
 - [ ] Differentiate dev from prod env
 - [ ] Add robot composition
+- [ ] If we represent the orientation as an axis angle, with the axis in sphe we can remove 1 variable and 1 constraint
+- [ ] If we represent the object using GP, adding 2 variables, we have a mathematical gradient for the contact constraints
+- [ ] Have uniform functions to access different parameters from the list
+- [ ] Have a single function to access the object in its correct place
+- [ ] Assess to see if we need to have a threshold
 
-# TODO list:
+#### TODO list
 
 - [ ] Integrate nn distance function
 - [ ] Entire framework as feasability problem
 - [ ] Extend the number of contacts (realise for 3-4 contact points)
 - [ ] Force closure for multiple contacts
 - [ ] Add ICub geometry
-
