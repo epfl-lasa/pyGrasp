@@ -1,0 +1,3 @@
+[submodule "external/src/Neural-JSDF"]
+	path = external/src/Neural-JSDF
+	url = git@github.com:niederha/Neural-JSDF.git
