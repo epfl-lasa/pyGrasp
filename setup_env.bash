@@ -27,7 +27,7 @@ while [ "$#" -gt 0 ]; do
 done
 
 # Check if we need to remove past files and caches
-if [ "$rebuild"=true ] ; then
+if [ "$rebuild"==true ] ; then
     echo "Removing previous venv..."
     rm -rf .venv
     echo "Done"
@@ -44,5 +44,8 @@ echo "Done"
 echo "Installing python libraries"
 pip install --upgrade pip         # We need the latest version to have editable mode with a .toml
 pip install -r requirements.txt  # Install package requirements
+pip install networkx==2.5  # Fun Fact: Required version for networkx in urdfpy sucks...
+                           # We need at least 2.5 if we're using python 3.9
+                           # Pip is gonna wine about it... ignore it, it works
 python3.9 -m build               # Build package
 python3.9 -m pip install -e .    # Install package. -e for editable, developer mode.
