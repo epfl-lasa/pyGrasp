@@ -163,11 +163,19 @@ class GraspSynthesizer():
         constraints = []
 
         constraints.append(self._quaternion_constraint(nb_joints))
-        # constraints.append(self._global_collision_constraint(object, active_joints))
-        constraints.append(self._contact_constraint_on_real_geom(object, active_joints, 0, link_1))
-        constraints.append(self._contact_constraint_on_real_geom(object, active_joints, 1, link_2))
-        constraints.append(self._self_collision_constraint(active_joints))
-        constraints.append(self._robot_object_collision_constraint(object, active_joints))
+
+        # Collisions
+        constraints.append(self._global_collision_constraint(object, active_joints))
+        # constraints.append(self._self_collision_constraint(active_joints))
+        # constraints.append(self._robot_object_collision_constraint(object, active_joints))
+        # constraints.append(self._jsdf_robot_object_collision_constraint(object, active_joints, axis=0))
+
+        # Contacts
+        # constraints.append(self._contact_constraint_on_real_geom(object, active_joints, 0, link_1))
+        # constraints.append(self._contact_constraint_on_real_geom(object, active_joints, 1, link_2))
+
+        for i in range(nb_joints):
+            pass
 
         return constraints
 
@@ -320,5 +328,29 @@ class GraspSynthesizer():
         constraint = {}
         constraint['type'] = 'eq'
         constraint['fun'] = lambda x: constraint_cb(x, object, active_joints, contact_number, link_name)
+
+        return constraint
+
+    def _jsdf_robot_object_collision_constraint(self, object: trimesh.Trimesh, active_joints: tp.List[int], axis: int=-1) -> tp.Dict:
+
+        def constrain_cb(x: tp.List[float], object: trimesh.Trimesh, active_joints: tp.List[int], axis: int=-1) -> float:
+            nb_joints = len(active_joints)
+            quat = x[nb_joints + self.NB_CONTACTS * 2 + self.ND_DIM_3D:]
+            trans = x[nb_joints + self.NB_CONTACTS * 2: nb_joints + self.NB_CONTACTS * 2 + self.ND_DIM_3D]
+            obj_transform = GraspSynthesizer.trans_quat_to_mat(trans, quat)
+            obj_in_place = object.copy()
+            obj_in_place.apply_transform(obj_transform)
+            q = self._robot_model.qz()
+            q[active_joints] = x[:nb_joints]
+            dst = self._robot_model.check_jsdf_collisions(q, obj_in_place)
+
+            if 0 <= axis < len(dst):
+                return dst[axis]
+            else:
+                return dst.min()
+
+        constraint = {}
+        constraint['type'] = 'ineq'
+        constraint['fun'] = lambda x: constrain_cb(x, object, active_joints, axis)
 
         return constraint
