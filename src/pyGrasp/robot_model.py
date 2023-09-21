@@ -18,6 +18,8 @@ from yourdfpy import URDF
 from . import utils as pgu
 from .tools.hole_filling import fill_trimesh_holes
 
+from JSDF import iiwa_JSDF
+
 
 class RobotModel(ERobot):
     """Child of ERobot, really just here to give access to all the methods of RTB with any URDF
@@ -133,6 +135,13 @@ class RobotModel(ERobot):
 
         # Learned geometries
         self._learned_geometries = {}
+
+        # Working with learned geometries
+        if 'iiwa' in name.lower():
+            self._jsdf_model = iiwa_JSDF(grid_size=[110] * 3)
+        else:
+            print(f"No JSDF model currently implemented for {name}")
+            self._jsdf_model = None
 
     def learn_geometry(self, nb_learning_pts: int = 5000, force_recompute: bool = False, verbose: bool = False) -> None:
         """
@@ -360,14 +369,14 @@ class RobotModel(ERobot):
         dst = 0
         if is_collision:
             for name, collision_data in zip(names, data_ls):
-
                 # Only for non-consecutive links
                 if 'object' not in name:
                     if (self.link_dict[name[0]].parent is not None and self.link_dict[name[0]].parent.name == name[1]) or \
                        (self.link_dict[name[1]].parent is not None and self.link_dict[name[1]].parent.name == name[0]):
                         continue
-
+                breakpoint()
                 dst = min(dst, -collision_data.depth)
+        breakpoint()
         return dst
 
     def check_self_collisions(self, q: tp.List[float]) -> float:
@@ -407,6 +416,18 @@ class RobotModel(ERobot):
             dst = cm.min_distance_single(object)
 
         return dst
+
+    def check_jsdf_collisions(self, q: tp.List[float], object: trimesh.Trimesh) -> np.ndarray:
+
+        if self._jsdf_model is None:
+            raise ValueError("No JSDF model for this robot type yet")
+
+        self._jsdf_model.set_robot_joint_positions(q)
+
+        signed_dst = -self._jsdf_model.calculate_signed_distance(object.vertices, min_dist=False)
+        signed_dst = signed_dst.min(axis=0)
+
+        return signed_dst
 
     def _load_visual_meshes(self, decimation_ratio: float = 0.1) -> None:
         if self._visu_urdf is not None:
