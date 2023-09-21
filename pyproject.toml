@@ -9,7 +9,7 @@ authors = [
   { name="Loïc Niederhauser", email="loic.niederhauser@epfl.ch" },
   { name="Kunpeng Yao", email="kunpeng.yao@epfl.ch" }
 ]
-description = "A packagae for flexible multi-grasp"
+description = "A package for flexible multi-grasp"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [

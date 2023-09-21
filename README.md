@@ -118,6 +118,7 @@ python scripts/example_extended_fk.py        # Run an example of the forward kin
 - [ ] Have uniform functions to access different parameters from the list
 - [ ] Have a single function to access the object in its correct place
 - [ ] Assess to see if we need to have a threshold
+- [ ] Adaptive contact tolerance on the constraint
 
 #### TODO list
 
