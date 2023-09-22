@@ -131,7 +131,8 @@ class ReachableSpace:
 
         if base_link is None:
             base_link = self.root_link
-
+        if not self.robot_model.link_has_visual(base_link) or not self.robot_model.link_has_visual(link_name):
+            return robot_scene
         mesh = self._rs_df.loc[base_link, link_name]
 
         # Root link is handled differently
@@ -190,7 +191,7 @@ class ReachableSpace:
             vertices_list = None
 
             # Solve the link
-            if parent_link is not None:
+            if parent_link is not None and self.robot_model.link_has_visual(link_info.name):
                 i_bottom = 0
                 preshaped_vert = np.zeros((0, 3))
                 intermediary_ashape = None
@@ -241,7 +242,7 @@ class ReachableSpace:
             if parent_link is not None:
                 self._rs_df.loc[parent_link.name, link_info.name] = alphashape(new_mesh.vertices, max_alpha)
 
-        if parent_link is not None and self._rs_df.loc[parent_link.name, link_info.name].is_watertight:
+        if parent_link is not None and self.robot_model.link_has_visual(link_info.name) and self.robot_model.link_has_visual(parent_link.name) and self._rs_df.loc[parent_link.name, link_info.name].is_watertight:
 
             # Fun fact... I think that in certain cases, this thing yields a segfault.
             # No fault of mine, the library sucks.
@@ -273,6 +274,7 @@ class ReachableSpace:
 
             # Handle errors
             if stable_link is None:
+                return
                 raise ValueError(f"Link {parent_link_info.name} has no parent with visual mesh")
 
             for next_link_name in link_children:
@@ -292,7 +294,8 @@ class ReachableSpace:
 
                 # Handle potential errors
                 if previous_parent is None:  # This should never happen
-                    raise ValueError(f"Link {next_link_info.name} has no parent with visual but should")
+                    return
+                    # raise ValueError(f"Link {next_link_info.name} has no parent with visual but should")
 
                 # This shouldn't happen either
                 if type(self._rs_df.loc[previous_parent.name, next_link_name]) == float and \
@@ -359,7 +362,7 @@ class ReachableSpace:
 
             # Only take into accounts links that have a visual geometry
             if not self.robot_model.link_has_visual(link.name):
-                continue
+                pass
 
             # Add link to the dictionary if needed
             if link.name not in self._link_map:
@@ -430,6 +433,8 @@ class ReachableSpace:
 
             while True:
                 if self.robot_model.link_has_visual(current_link.name):
+                    root_link = current_link
+                else:
                     root_link = current_link
 
                 parent_name = self._link_map[current_link.name].parent_name

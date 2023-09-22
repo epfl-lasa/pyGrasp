@@ -5,7 +5,7 @@ import pyGrasp.utils as pgu
 from pyGrasp.robot_model import RobotModel
 
 # Choose your example robot here
-SELECTED_ROBOT = pgu.IIWA7_URDF_PATH  # Find all possible robot in the utils.py file
+SELECTED_ROBOT = pgu.CH_LONG_URDF_PATH  # Find all possible robot in the utils.py file
 
 
 def main() -> None:
