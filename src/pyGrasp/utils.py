@@ -21,6 +21,7 @@ UrdfPath = namedtuple("UrdfPath", ["folder", "file_path"])
 # All available robot with their path descriptions
 IIWA_FOLDER = PYGRASP_ROOT / "../../models/iiwa/"
 ALLEGRO_FOLDER = PYGRASP_ROOT / "../../models/allegro/"
+CH_FOLDER = PYGRASP_ROOT / "../../models/crawling_hand/"
 
 IIWA7_URDF_PATH = UrdfPath(
     folder=IIWA_FOLDER,
@@ -37,3 +38,11 @@ ALLEGRO_LEFT_URDF_PATH = UrdfPath(
 ALLEGRO_RIGHT_URDF_PATH = UrdfPath(
     folder=ALLEGRO_FOLDER,
     file_path=ALLEGRO_FOLDER / Path("allegro_hand_description/allegro_hand_description_right.urdf"))
+CH_SHORT_URDF_PATH = UrdfPath(
+    folder=CH_FOLDER,
+    file_path=CH_FOLDER / Path("short_description/URDF_finger_ssss.urdf")
+)
+CH_LONG_URDF_PATH = UrdfPath(
+    folder=CH_FOLDER,
+    file_path=CH_FOLDER / Path("crawling_hand_description/six_finger_hand_llll.urdf")
+)
