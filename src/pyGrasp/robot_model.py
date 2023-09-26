@@ -374,9 +374,7 @@ class RobotModel(ERobot):
                     if (self.link_dict[name[0]].parent is not None and self.link_dict[name[0]].parent.name == name[1]) or \
                        (self.link_dict[name[1]].parent is not None and self.link_dict[name[1]].parent.name == name[0]):
                         continue
-                breakpoint()
                 dst = min(dst, -collision_data.depth)
-        breakpoint()
         return dst
 
     def check_self_collisions(self, q: tp.List[float]) -> float:
@@ -435,8 +433,13 @@ class RobotModel(ERobot):
 
                 # Load full mesh
                 if self.link_has_visual(key):
-                    stl_file = link.visuals[0].geometry.mesh.filename
-                    self._visual_meshes[key] = trimesh.load_mesh(stl_file)
+                    if link.visuals[0].geometry.mesh:
+                        stl_file = link.visuals[0].geometry.mesh.filename
+                        self._visual_meshes[key] = trimesh.load_mesh(stl_file)
+                    elif link.visuals[0].geometry.box:
+                        self._visual_meshes[key] = trimesh.creation.box(extents=link.visuals[0].geometry.box.size)
+                    else:
+                        raise ValueError(f"For now only box and mesh geometry are supported.\n Link has: {link.visual[0].geometry}")
 
                     # Set the link at it's origin point if needed
                     if link.visuals[0].origin is not None:

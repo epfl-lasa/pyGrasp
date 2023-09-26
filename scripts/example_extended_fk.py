@@ -9,7 +9,7 @@ import pyGrasp.utils as pgu
 from pyGrasp.robot_model import RobotModel
 
 # Choose your example robot here
-SELECTED_ROBOT = pgu.ALLEGRO_LEFT_URDF_PATH
+SELECTED_ROBOT = pgu.CH_LONG_URDF_PATH
 
 
 def main() -> None:

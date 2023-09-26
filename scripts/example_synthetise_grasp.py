@@ -9,7 +9,7 @@ from pyGrasp.grasp_synthesiser import GraspSynthesizer
 
 
 # Choose your example robot here
-SELECTED_ROBOT = pgu.IIWA7_URDF_PATH  # Find all possible robot in the utils.py file
+SELECTED_ROBOT = pgu.CH_LONG_URDF_PATH  # Find all possible robot in the utils.py file
 
 
 def main() -> None:
@@ -18,7 +18,7 @@ def main() -> None:
 
     random.seed(0)  # For repeatability
 
-    # Load urdf
+    # Load urdfgut
     if SELECTED_ROBOT.folder.is_dir() and SELECTED_ROBOT.file_path.is_file():
         robot_model = RobotModel(SELECTED_ROBOT.folder, SELECTED_ROBOT.file_path)
         print("Loaded robot model:")
