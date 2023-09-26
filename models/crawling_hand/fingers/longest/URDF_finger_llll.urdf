@@ -72,7 +72,7 @@
 
 <link name="proximal_1">
   <inertial>
-    <origin xyz="-0.0105 -0.0435 0.008" rpy="0 0 0"/>
+    <origin xyz="-0.008169135912463519 0.03727461554779869 -3.230055112268815e-15" rpy="0 0 0"/>
     <mass value="0.05275493771588791"/>
     <inertia ixx="1.6e-05" iyy="1.2e-05" izz="2.6e-05" ixy="0.0" iyz="-0.0" ixz="-0.0"/>
   </inertial>
@@ -185,7 +185,7 @@
   </collision>
 </link>
 
-<joint name="MCP_spread" type="revolute">
+<joint name="MCP_spread" type="continuous">
   <origin xyz="0.0 0.0 0.0036" rpy="0 0 0"/>
   <parent link="base_link"/>
   <child link="MCP_spread_motor_1"/>
@@ -193,7 +193,7 @@
   <limit effort="0" lower="-1.9" upper="1.9" velocity="0"/>
 </joint>
 
-<joint name="MCP" type="revolute">
+<joint name="MCP" type="continuous">
   <origin xyz="0.0106 0.0435 -0.0115" rpy="0 0 0"/>
   <parent link="metacarpal_1"/>
   <child link="MCP_motor_1"/>
@@ -207,7 +207,7 @@
   <child link="proximal_1"/>
 </joint>
 
-<joint name="PIP" type="revolute">
+<joint name="PIP" type="continuous">
   <origin xyz="0.0001 0.059 0.0" rpy="0 0 0"/>
   <parent link="proximal_1"/>
   <child link="PIP_DIP_motor_1"/>
@@ -221,12 +221,12 @@
   <child link="middle_1"/>
 </joint>
 
-<joint name="DIP" type="revolute">
-  <origin xyz="0.003 0.0505 1.0" rpy="0 0 0"/>
+<joint name="DIP" type="continuous">
+  <origin xyz="0.003 0.0505 0.0" rpy="0 0 0"/>
   <parent link="middle_1"/>
   <child link="distal_1"/>
   <axis xyz="1.0 0.0 -0.0"/>
-  <limit effort="0" lower="-2" upper="0." velocity="0"/>
+  <limit effort="0" lower="-2.3" upper="0." velocity="0"/>
 </joint>
 
 <joint name="Metacarpal_to_motor" type="fixed">
