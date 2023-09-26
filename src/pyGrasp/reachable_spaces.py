@@ -67,7 +67,7 @@ class ReachableSpace:
 
         return self._root_link
 
-    def compute_rs(self, angle_step: float = .1, force_recompute: bool = False) -> None:
+    def compute_rs(self, angle_step: float = .2, force_recompute: bool = False) -> None:
 
         # Generate link map
         if not self._link_map:
@@ -96,8 +96,9 @@ class ReachableSpace:
 
         # Computing RS
         else:
+
             # Solve every link reachable space from tip to base
-            base_link_info = self._link_map[self.robot_model.base_link.name]
+            base_link_info = self._link_map[self.root_link]
             current_link_info = base_link_info
             nb_link_solved = 0
             while nb_link_solved < len(self._link_map):
@@ -166,7 +167,7 @@ class ReachableSpace:
         parent_link = None
         current_link = link_info
         while True:
-            if current_link.parent_name is None:
+            if current_link.parent_name is None or current_link.parent_name not in self._link_map.keys():
                 break
             else:
                 if self.robot_model.link_has_visual(self._link_map[current_link.parent_name].name):
@@ -177,12 +178,8 @@ class ReachableSpace:
 
         # Fill link self geometry
         if self.robot_model.link_has_visual(link_info.name):
-            new_mesh = self.robot_model.get_mesh_at_q(self.robot_model.qz(), link_info.name)
-            if link_info.alpha is None:
-                        link_info.alpha = self._find_max_alpha(new_mesh)
-            self._rs_df.loc[link_info.name, link_info.name] = alphashape(new_mesh.vertices, link_info.alpha)
-            # self._rs_df.loc[link_info.name, link_info.name] = \
-            #     RobotModel.robust_hole_filling(self._rs_df.loc[link_info.name, link_info.name])
+            self._rs_df.loc[link_info.name, link_info.name] = \
+                self.robot_model.get_mesh_at_q(self.robot_model.qz(), link_info.name).copy()
 
         # Iterate over all angles
         if link_info.joint_id is not None:
@@ -256,63 +253,69 @@ class ReachableSpace:
         """Propagating link deformation to all children of the current link
         """
 
-        # Skip if no joint is directly connected to parent link. We'll get it later
-        if parent_link_info.joint_id is not None:
+        # Get all children of link
+        link_children = self._get_link_children(parent_link_info.name)
 
-            # Get all children of link
-            link_children = self._get_link_children(parent_link_info.name)
+        # Get name of the closest stable link (not moving)
+        # We're gonna register the geometry under this name in the DF
+        parent_iterator = parent_link_info
+        stable_link = None
+        while parent_iterator.parent_name is not None and parent_iterator.parent_name in self._link_map.keys():
+            parent_iterator = self._link_map[parent_iterator.parent_name]
+            if self.robot_model.link_has_visual(parent_iterator.name):
+                stable_link = parent_iterator
+                break
 
-            # Get name of the closest stable link (not moving)
-            # We're gonna register the geometry under this name in the DF
-            parent_iterator = parent_link_info
-            stable_link = None
-            while parent_iterator.parent_name is not None:
-                parent_iterator = self._link_map[parent_iterator.parent_name]
-                if self.robot_model.link_has_visual(parent_iterator.name):
-                    stable_link = parent_iterator
-                    break
-
-            # Handle errors
-            if stable_link is None:
-                return
+        # Handle errors
+        if stable_link is None:
+            if parent_link_info.joint_id is None:
+                return  # Base link
+            else:
                 raise ValueError(f"Link {parent_link_info.name} has no parent with visual mesh")
 
-            for next_link_name in link_children:
+        for next_link_name in link_children:
 
-                # Get link to propagate to
-                next_link_info = self._link_map[next_link_name]
+            # Get link to propagate to
+            next_link_info = self._link_map[next_link_name]
 
-                # Get link from which the propagation was done last:
-                previous_parent = None
-                parent_iterator = next_link_info
-                while parent_iterator.parent_name is not None \
-                        and parent_iterator.parent_name != stable_link.name:
+            # Get link from which the propagation was done last:
+            previous_parent = None
+            parent_iterator = next_link_info
+            while parent_iterator.parent_name is not None \
+                    and parent_iterator.parent_name != stable_link.name:
 
-                    parent_iterator = self._link_map[parent_iterator.parent_name]
-                    if self.robot_model.link_has_visual(parent_iterator.name):
-                        previous_parent = parent_iterator
+                parent_iterator = self._link_map[parent_iterator.parent_name]
+                if self.robot_model.link_has_visual(parent_iterator.name):
+                    previous_parent = parent_iterator
 
-                # Handle potential errors
-                if previous_parent is None:  # This should never happen
-                    return
-                    # raise ValueError(f"Link {next_link_info.name} has no parent with visual but should")
+            # Handle potential errors
+            if previous_parent is None:  # This should never happen
+                raise ValueError(f"Link {next_link_info.name} has no parent with visual but should")
 
-                # This shouldn't happen either
-                if type(self._rs_df.loc[previous_parent.name, next_link_name]) == float and \
-                        np.isnan(self._rs_df.loc[previous_parent.name, next_link_name]):
-                    raise ValueError("Trying to propagate from a link whose children have not all been solved")
 
-                # Decimate RS if we estimate it is too big for propagation
-                parent_mesh = self._rs_df.loc[previous_parent.name, next_link_name].copy()
-                if self._rs_df.loc[previous_parent.name, next_link_name].faces.shape[0] > self.MAX_ALPHA_FACES:
-                    parent_mesh = parent_mesh.simplify_quadric_decimation(self.BASE_ALPHA_FACES)
+            # This shouldn't happen either
+            if type(self._rs_df.loc[previous_parent.name, next_link_name]) == float and \
+                    np.isnan(self._rs_df.loc[previous_parent.name, next_link_name]):
+                raise ValueError("Trying to propagate from a link whose children have not all been solved")
 
+            # Decimate RS if we estimate it is too big for propagation
+            parent_mesh = self._rs_df.loc[previous_parent.name, next_link_name].copy()
+            if self._rs_df.loc[previous_parent.name, next_link_name].faces.shape[0] > self.MAX_ALPHA_FACES:
+                parent_mesh = parent_mesh.simplify_quadric_decimation(self.BASE_ALPHA_FACES)
+
+            # Iterate over all angles
+            print(f"Propagating from {parent_link_info.name} to {next_link_info.name}")
+
+            # For fixed link, just copy the mesh
+            if parent_link_info.joint_id is None and type(self._rs_df.loc[stable_link.name, next_link_name]) == float:
+                print("====================================  =================== Oh! What are we doing here?")
+                self._rs_df.loc[stable_link.name, next_link_name] = parent_mesh.copy()
+
+            else:
                 # Setup vertices list
                 nb_vertices = parent_mesh.vertices.shape[0]
                 vertices_list = np.full([nb_vertices * len(angle_list[parent_link_info.joint_id]), 3], np.nan)
 
-                # Iterate over all angles
-                print(f"Propagating from {parent_link_info.name} to {next_link_info.name}")
                 q_test = self.robot_model.qz()
                 rs_backtransform = np.linalg.inv(self.robot_model.fkine(q_test, end=next_link_info.name))
 
@@ -381,10 +384,18 @@ class ReachableSpace:
                 self._link_map[link.name].id = i
                 self._link_map[link.name].joint_id = link.jindex
 
-            # Add parent to the dictionary if needed
-            if link.parent is not None:
-                if link.parent.name not in self._link_map:
-                    self._link_map[link.parent.name] = LinkInfo(name=link.parent.name,
+            # Find if link has a parent with visual
+            link_valid_parent = link.parent
+            while link_valid_parent is not None:
+                if link_valid_parent is not None and self.robot_model.link_has_visual(link_valid_parent.name):
+                    break
+                else:
+                    link_valid_parent = link_valid_parent.parent
+
+            # If parent append fill up missing info from it
+            if link_valid_parent is not None:
+                if link_valid_parent.name not in self._link_map:
+                    self._link_map[link_valid_parent.name] = LinkInfo(name=link_valid_parent.name,
                                                                 id=-1,
                                                                 rs_solved=False,
                                                                 joint_id=None,
@@ -392,12 +403,12 @@ class ReachableSpace:
                                                                 children_names=[link.name],
                                                                 alpha=None,
                                                                 parent_id=-1,
-                                                                parent_name=link.parent.parent if link.parent.parent is None else link.parent.parent.name)
+                                                                parent_name=link_valid_parent.parent if link_valid_parent.parent is None else link_valid_parent.parent.name)
 
                 # Append to children if parent already in dict
                 else:
-                    self._link_map[link.parent.name].children_id.append(i)
-                    self._link_map[link.parent.name].children_names.append(link.name)
+                    self._link_map[link_valid_parent.name].children_id.append(i)
+                    self._link_map[link_valid_parent.name].children_names.append(link.name)
 
         # One more pass to fill all parent ids
         for link_info in self._link_map.values():
@@ -438,7 +449,7 @@ class ReachableSpace:
                     root_link = current_link
 
                 parent_name = self._link_map[current_link.name].parent_name
-                if parent_name is not None:
+                if parent_name is not None and parent_name in self._link_map.keys():
                     current_link = self._link_map[parent_name]
                 else:
                     break

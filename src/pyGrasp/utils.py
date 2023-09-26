@@ -5,8 +5,6 @@ import os
 from pathlib import Path
 from collections import namedtuple
 
-
-
 # Root of the pygrasp package in absolute
 PYGRASP_ROOT = Path(os.path.dirname(__file__))
 
@@ -21,7 +19,8 @@ UrdfPath = namedtuple("UrdfPath", ["folder", "file_path"])
 # All available robot with their path descriptions
 IIWA_FOLDER = PYGRASP_ROOT / "../../models/iiwa/"
 ALLEGRO_FOLDER = PYGRASP_ROOT / "../../models/allegro/"
-CH_FOLDER = PYGRASP_ROOT / "../../models/crawling_hand/"
+CH_FOLDER = PYGRASP_ROOT / "../../models/crawling_hand/crawling_hand_description/"
+CH_FINGER_FOLDER = PYGRASP_ROOT / "../../models/crawling_hand/fingers/"
 
 IIWA7_URDF_PATH = UrdfPath(
     folder=IIWA_FOLDER,
@@ -44,5 +43,16 @@ CH_SHORT_URDF_PATH = UrdfPath(
 )
 CH_LONG_URDF_PATH = UrdfPath(
     folder=CH_FOLDER,
-    file_path=CH_FOLDER / Path("crawling_hand_description/six_finger_hand_llll.urdf")
+    file_path=CH_FOLDER / Path("six_finger_hand_llll.urdf")
 )
+
+CH_FINGER_LONG_URDF_PATH = UrdfPath(
+    folder=CH_FINGER_FOLDER,
+    file_path=CH_FINGER_FOLDER / Path("longest/URDF_finger_llll.urdf")
+)
+
+CH_FINGER_SHORT_URDF_PATH = UrdfPath(
+    folder=CH_FINGER_FOLDER,
+    file_path=CH_FINGER_FOLDER / Path("shortest/URDF_finger_llll.urdf")
+)
+

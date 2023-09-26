@@ -13,6 +13,13 @@
          <mass value="0.5120000000000001"/>
          <inertia ixx="0.0011093333333333337" iyy="0.0011093333333333337" izz="0.002184533333333334" ixy="0" ixz="0" iyz="0"/>
       </inertial>
+      <visual name="hand">
+         <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+         <geometry>
+            <box size="0.16 0.16 0.02"/>
+            <material name="white"/>
+         </geometry>
+      </visual>
    </link>
    <link name="world2world_fixed">
       <inertial>
@@ -40,7 +47,7 @@
       <visual name="base_link">
          <origin xyz="6.216408663460327e-08 2.3192417713995757e-06 0.004623478145951719" rpy="3.141592653589793 -1.5707963267948966 0.0"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_base_link.stl"/>
+            <mesh filename="package://converted_base_link.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -71,14 +78,14 @@
       <visual name="MCP_spread_motor_1">
          <origin xyz="-4.635344990172431e-05 -0.007515921440695716 -0.011428398130128803" rpy="1.5716895445470493 -0.03571975389681192 -0.004558496347485136"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_MCP_spread_motor_1.stl"/>
+            <mesh filename="package://converted_MCP_spread_motor_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
       <visual name="metacarpal_1">
          <origin xyz="0.0005359663967735601 0.01026013998026553 -0.01160005527813145" rpy="0.9396397687264357 -1.5707910814168278 0.5458940371703993"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_metacarpal_1.stl"/>
+            <mesh filename="package://converted_metacarpal_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -111,14 +118,14 @@
       <visual name="MCP_motor_1">
          <origin xyz="-0.011428398088521013 0.007515922825152364 -4.6353117932732e-05" rpy="1.4447302968900833 -1.5347869918721169 0.12687784385510545"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_MCP_motor_1.stl"/>
+            <mesh filename="package://converted_MCP_motor_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
       <visual name="proximal_1">
          <origin xyz="-0.009990938238875247 0.03915668206144257 -2.086111781582356e-08" rpy="1.3774808759047128 -1.5707963267948966 0.0"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_proximal_1.stl"/>
+            <mesh filename="package://converted_proximal_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -151,14 +158,14 @@
       <visual name="PIP_DIP_motor_1">
          <origin xyz="-0.011428398389228734 0.007515925594064665 -4.635318888735612e-05" rpy="1.444729319926511 -1.5347868813838343 0.12687878859745186"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_PIP_DIP_motor_1.stl"/>
+            <mesh filename="package://converted_PIP_DIP_motor_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
       <visual name="middle_1">
          <origin xyz="-0.01058566312317408 0.032857566598312835 -2.0296691237431386e-10" rpy="2.9223690462600653 -1.5707963267948966 0.0"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_middle_1.stl"/>
+            <mesh filename="package://converted_middle_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -191,7 +198,7 @@
       <visual name="distal_1">
          <origin xyz="-0.013499999980733406 0.026097314775325453 5.960085598319398e-08" rpy="3.141592653589793 -1.570791449970143 -1.5707963267948966"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_distal_1.stl"/>
+            <mesh filename="package://converted_distal_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -224,7 +231,7 @@
       <visual name="base_link">
          <origin xyz="6.216408663460327e-08 2.3192417713995757e-06 0.004623478145951719" rpy="3.141592653589793 -1.5707963267948966 0.0"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_base_link.stl"/>
+            <mesh filename="package://converted_base_link.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -255,14 +262,14 @@
       <visual name="MCP_spread_motor_1">
          <origin xyz="-4.635344990172431e-05 -0.007515921440695716 -0.011428398130128803" rpy="1.5716895445470493 -0.03571975389681192 -0.004558496347485136"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_MCP_spread_motor_1.stl"/>
+            <mesh filename="package://converted_MCP_spread_motor_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
       <visual name="metacarpal_1">
          <origin xyz="0.0005359663967735601 0.01026013998026553 -0.01160005527813145" rpy="0.9396397687264357 -1.5707910814168278 0.5458940371703993"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_metacarpal_1.stl"/>
+            <mesh filename="package://converted_metacarpal_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -295,14 +302,14 @@
       <visual name="MCP_motor_1">
          <origin xyz="-0.011428398088521013 0.007515922825152364 -4.6353117932732e-05" rpy="1.4447302968900833 -1.5347869918721169 0.12687784385510545"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_MCP_motor_1.stl"/>
+            <mesh filename="package://converted_MCP_motor_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
       <visual name="proximal_1">
          <origin xyz="-0.009990938238875247 0.03915668206144257 -2.086111781582356e-08" rpy="1.3774808759047128 -1.5707963267948966 0.0"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_proximal_1.stl"/>
+            <mesh filename="package://converted_proximal_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -335,14 +342,14 @@
       <visual name="PIP_DIP_motor_1">
          <origin xyz="-0.011428398389228734 0.007515925594064665 -4.635318888735612e-05" rpy="1.444729319926511 -1.5347868813838343 0.12687878859745186"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_PIP_DIP_motor_1.stl"/>
+            <mesh filename="package://converted_PIP_DIP_motor_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
       <visual name="middle_1">
          <origin xyz="-0.01058566312317408 0.032857566598312835 -2.0296691237431386e-10" rpy="2.9223690462600653 -1.5707963267948966 0.0"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_middle_1.stl"/>
+            <mesh filename="package://converted_middle_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -375,7 +382,7 @@
       <visual name="distal_1">
          <origin xyz="-0.013499999980733406 0.026097314775325453 5.960085598319398e-08" rpy="3.141592653589793 -1.570791449970143 -1.5707963267948966"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_distal_1.stl"/>
+            <mesh filename="package://converted_distal_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -408,7 +415,7 @@
       <visual name="base_link">
          <origin xyz="6.216408663460327e-08 2.3192417713995757e-06 0.004623478145951719" rpy="3.141592653589793 -1.5707963267948966 0.0"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_base_link.stl"/>
+            <mesh filename="package://converted_base_link.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -439,14 +446,14 @@
       <visual name="MCP_spread_motor_1">
          <origin xyz="-4.635344990172431e-05 -0.007515921440695716 -0.011428398130128803" rpy="1.5716895445470493 -0.03571975389681192 -0.004558496347485136"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_MCP_spread_motor_1.stl"/>
+            <mesh filename="package://converted_MCP_spread_motor_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
       <visual name="metacarpal_1">
          <origin xyz="0.0005359663967735601 0.01026013998026553 -0.01160005527813145" rpy="0.9396397687264357 -1.5707910814168278 0.5458940371703993"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_metacarpal_1.stl"/>
+            <mesh filename="package://converted_metacarpal_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -479,14 +486,14 @@
       <visual name="MCP_motor_1">
          <origin xyz="-0.011428398088521013 0.007515922825152364 -4.6353117932732e-05" rpy="1.4447302968900833 -1.5347869918721169 0.12687784385510545"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_MCP_motor_1.stl"/>
+            <mesh filename="package://converted_MCP_motor_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
       <visual name="proximal_1">
          <origin xyz="-0.009990938238875247 0.03915668206144257 -2.086111781582356e-08" rpy="1.3774808759047128 -1.5707963267948966 0.0"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_proximal_1.stl"/>
+            <mesh filename="package://converted_proximal_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -519,14 +526,14 @@
       <visual name="PIP_DIP_motor_1">
          <origin xyz="-0.011428398389228734 0.007515925594064665 -4.635318888735612e-05" rpy="1.444729319926511 -1.5347868813838343 0.12687878859745186"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_PIP_DIP_motor_1.stl"/>
+            <mesh filename="package://converted_PIP_DIP_motor_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
       <visual name="middle_1">
          <origin xyz="-0.01058566312317408 0.032857566598312835 -2.0296691237431386e-10" rpy="2.9223690462600653 -1.5707963267948966 0.0"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_middle_1.stl"/>
+            <mesh filename="package://converted_middle_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -559,7 +566,7 @@
       <visual name="distal_1">
          <origin xyz="-0.013499999980733406 0.026097314775325453 5.960085598319398e-08" rpy="3.141592653589793 -1.570791449970143 -1.5707963267948966"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_distal_1.stl"/>
+            <mesh filename="package://converted_distal_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -592,7 +599,7 @@
       <visual name="base_link">
          <origin xyz="6.216408663460327e-08 2.3192417713995757e-06 0.004623478145951719" rpy="3.141592653589793 -1.5707963267948966 0.0"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_base_link.stl"/>
+            <mesh filename="package://converted_base_link.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -623,14 +630,14 @@
       <visual name="MCP_spread_motor_1">
          <origin xyz="-4.635344990172431e-05 -0.007515921440695716 -0.011428398130128803" rpy="1.5716895445470493 -0.03571975389681192 -0.004558496347485136"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_MCP_spread_motor_1.stl"/>
+            <mesh filename="package://converted_MCP_spread_motor_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
       <visual name="metacarpal_1">
          <origin xyz="0.0005359663967735601 0.01026013998026553 -0.01160005527813145" rpy="0.9396397687264357 -1.5707910814168278 0.5458940371703993"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_metacarpal_1.stl"/>
+            <mesh filename="package://converted_metacarpal_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -663,14 +670,14 @@
       <visual name="MCP_motor_1">
          <origin xyz="-0.011428398088521013 0.007515922825152364 -4.6353117932732e-05" rpy="1.4447302968900833 -1.5347869918721169 0.12687784385510545"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_MCP_motor_1.stl"/>
+            <mesh filename="package://converted_MCP_motor_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
       <visual name="proximal_1">
          <origin xyz="-0.009990938238875247 0.03915668206144257 -2.086111781582356e-08" rpy="1.3774808759047128 -1.5707963267948966 0.0"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_proximal_1.stl"/>
+            <mesh filename="package://converted_proximal_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -703,14 +710,14 @@
       <visual name="PIP_DIP_motor_1">
          <origin xyz="-0.011428398389228734 0.007515925594064665 -4.635318888735612e-05" rpy="1.444729319926511 -1.5347868813838343 0.12687878859745186"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_PIP_DIP_motor_1.stl"/>
+            <mesh filename="package://converted_PIP_DIP_motor_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
       <visual name="middle_1">
          <origin xyz="-0.01058566312317408 0.032857566598312835 -2.0296691237431386e-10" rpy="2.9223690462600653 -1.5707963267948966 0.0"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_middle_1.stl"/>
+            <mesh filename="package://converted_middle_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -743,7 +750,7 @@
       <visual name="distal_1">
          <origin xyz="-0.013499999980733406 0.026097314775325453 5.960085598319398e-08" rpy="3.141592653589793 -1.570791449970143 -1.5707963267948966"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_distal_1.stl"/>
+            <mesh filename="package://converted_distal_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -776,7 +783,7 @@
       <visual name="base_link">
          <origin xyz="6.216408663460327e-08 2.3192417713995757e-06 0.004623478145951719" rpy="3.141592653589793 -1.5707963267948966 0.0"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_base_link.stl"/>
+            <mesh filename="package://converted_base_link.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -807,14 +814,14 @@
       <visual name="MCP_spread_motor_1">
          <origin xyz="-4.635344990172431e-05 -0.007515921440695716 -0.011428398130128803" rpy="1.5716895445470493 -0.03571975389681192 -0.004558496347485136"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_MCP_spread_motor_1.stl"/>
+            <mesh filename="package://converted_MCP_spread_motor_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
       <visual name="metacarpal_1">
          <origin xyz="0.0005359663967735601 0.01026013998026553 -0.01160005527813145" rpy="0.9396397687264357 -1.5707910814168278 0.5458940371703993"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_metacarpal_1.stl"/>
+            <mesh filename="package://converted_metacarpal_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -847,14 +854,14 @@
       <visual name="MCP_motor_1">
          <origin xyz="-0.011428398088521013 0.007515922825152364 -4.6353117932732e-05" rpy="1.4447302968900833 -1.5347869918721169 0.12687784385510545"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_MCP_motor_1.stl"/>
+            <mesh filename="package://converted_MCP_motor_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
       <visual name="proximal_1">
          <origin xyz="-0.009990938238875247 0.03915668206144257 -2.086111781582356e-08" rpy="1.3774808759047128 -1.5707963267948966 0.0"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_proximal_1.stl"/>
+            <mesh filename="package://converted_proximal_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -887,14 +894,14 @@
       <visual name="PIP_DIP_motor_1">
          <origin xyz="-0.011428398389228734 0.007515925594064665 -4.635318888735612e-05" rpy="1.444729319926511 -1.5347868813838343 0.12687878859745186"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_PIP_DIP_motor_1.stl"/>
+            <mesh filename="package://converted_PIP_DIP_motor_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
       <visual name="middle_1">
          <origin xyz="-0.01058566312317408 0.032857566598312835 -2.0296691237431386e-10" rpy="2.9223690462600653 -1.5707963267948966 0.0"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_middle_1.stl"/>
+            <mesh filename="package://converted_middle_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -927,7 +934,7 @@
       <visual name="distal_1">
          <origin xyz="-0.013499999980733406 0.026097314775325453 5.960085598319398e-08" rpy="3.141592653589793 -1.570791449970143 -1.5707963267948966"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_distal_1.stl"/>
+            <mesh filename="package://converted_distal_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -960,7 +967,7 @@
       <visual name="base_link">
          <origin xyz="6.216408663460327e-08 2.3192417713995757e-06 0.004623478145951719" rpy="3.141592653589793 -1.5707963267948966 0.0"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_base_link.stl"/>
+            <mesh filename="package://converted_base_link.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -991,14 +998,14 @@
       <visual name="MCP_spread_motor_1">
          <origin xyz="-4.635344990172431e-05 -0.007515921440695716 -0.011428398130128803" rpy="1.5716895445470493 -0.03571975389681192 -0.004558496347485136"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_MCP_spread_motor_1.stl"/>
+            <mesh filename="package://converted_MCP_spread_motor_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
       <visual name="metacarpal_1">
          <origin xyz="0.0005359663967735601 0.01026013998026553 -0.01160005527813145" rpy="0.9396397687264357 -1.5707910814168278 0.5458940371703993"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_metacarpal_1.stl"/>
+            <mesh filename="package://converted_metacarpal_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -1031,14 +1038,14 @@
       <visual name="MCP_motor_1">
          <origin xyz="-0.011428398088521013 0.007515922825152364 -4.6353117932732e-05" rpy="1.4447302968900833 -1.5347869918721169 0.12687784385510545"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_MCP_motor_1.stl"/>
+            <mesh filename="package://converted_MCP_motor_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
       <visual name="proximal_1">
          <origin xyz="-0.009990938238875247 0.03915668206144257 -2.086111781582356e-08" rpy="1.3774808759047128 -1.5707963267948966 0.0"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_proximal_1.stl"/>
+            <mesh filename="package://converted_proximal_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -1071,14 +1078,14 @@
       <visual name="PIP_DIP_motor_1">
          <origin xyz="-0.011428398389228734 0.007515925594064665 -4.635318888735612e-05" rpy="1.444729319926511 -1.5347868813838343 0.12687878859745186"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_PIP_DIP_motor_1.stl"/>
+            <mesh filename="package://converted_PIP_DIP_motor_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
       <visual name="middle_1">
          <origin xyz="-0.01058566312317408 0.032857566598312835 -2.0296691237431386e-10" rpy="2.9223690462600653 -1.5707963267948966 0.0"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_middle_1.stl"/>
+            <mesh filename="package://converted_middle_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
@@ -1111,7 +1118,7 @@
       <visual name="distal_1">
          <origin xyz="-0.013499999980733406 0.026097314775325453 5.960085598319398e-08" rpy="3.141592653589793 -1.570791449970143 -1.5707963267948966"/>
          <geometry>
-            <mesh filename="package://crawling_hand_description/converted_distal_1.stl"/>
+            <mesh filename="package://converted_distal_1.stl"/>
          </geometry>
          <material name="white"/>
       </visual>
