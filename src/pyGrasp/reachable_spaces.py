@@ -167,7 +167,7 @@ class ReachableSpace:
         parent_link = None
         current_link = link_info
         while True:
-            if current_link.parent_name is None or current_link.parent_name not in self._link_map.keys():
+            if current_link.parent_name is None:
                 break
             else:
                 if self.robot_model.link_has_visual(self._link_map[current_link.parent_name].name):
@@ -308,7 +308,6 @@ class ReachableSpace:
 
             # For fixed link, just copy the mesh
             if parent_link_info.joint_id is None and type(self._rs_df.loc[stable_link.name, next_link_name]) == float:
-                print("====================================  =================== Oh! What are we doing here?")
                 self._rs_df.loc[stable_link.name, next_link_name] = parent_mesh.copy()
 
             else:
