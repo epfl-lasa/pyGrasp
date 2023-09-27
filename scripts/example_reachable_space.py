@@ -31,7 +31,6 @@ def main() -> None:
     rs = ReachableSpace(robot_model)
     rs.compute_rs(force_recompute=True)
 
-    breakpoint()
     # Show all rs to check
     rs.show_all_rs()
 
