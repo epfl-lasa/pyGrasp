@@ -29,7 +29,7 @@ def main() -> None:
 
     # Create reachable space
     rs = ReachableSpace(robot_model)
-    rs.compute_rs(force_recompute=True)
+    rs.compute_rs(force_recompute=False)
 
     # Show all rs to check
     rs.show_all_rs()
