@@ -5,6 +5,7 @@ import pickle
 import tempfile
 import typing as tp
 from math import cos, sin
+from colorama import Fore, Style
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -137,7 +138,7 @@ class RobotModel(ERobot):
         self._learned_geometries = {}
 
         # Working with learned geometries
-        if 'iiwa' in name.lower():
+        if 'iiwa' in name.lower() and False:
             self._jsdf_model = iiwa_JSDF(grid_size=[110] * 3)
         else:
             print(f"No JSDF model currently implemented for {name}")
@@ -159,8 +160,9 @@ class RobotModel(ERobot):
 
         print("Learning geometries")
         training_scores = []
-        for key, mesh in tqdm(self._visual_meshes.items()):
 
+        for key, mesh in tqdm(self._visual_meshes.items()):
+            current_nb_pts = nb_learning_pts
             # Check if the file exist
             save_file = pgu.CACHE_FOLDER / pathlib.Path(self.name + "_" + key + ".pickle")
             if force_recompute or not save_file.is_file():
@@ -168,11 +170,14 @@ class RobotModel(ERobot):
                 if verbose:
                     print(f"Computing geometry model for link {key}")
 
-                cart_pts, _ = sample_surface_even(mesh, nb_learning_pts, seed=0)
+                cart_pts, _ = sample_surface_even(mesh, current_nb_pts, seed=0)
+                if cart_pts.shape[0] < current_nb_pts:
+                    current_nb_pts = cart_pts.shape[0]
+                    print(Fore.LIGHTRED_EX + f"WARNING: Only {current_nb_pts} points were sampled for link {key}" + Style.RESET_ALL)
 
                 # Switch from tuple to array and center mesh
-                cart_pts_np = np.full((nb_learning_pts, 3), np.nan)
-                for i in range(nb_learning_pts):
+                cart_pts_np = np.full((current_nb_pts, 3), np.nan)
+                for i in range(current_nb_pts):
                     cart_pts_np[i, 0] = cart_pts[i][0] - mesh.center_mass[0]
                     cart_pts_np[i, 1] = cart_pts[i][1] - mesh.center_mass[1]
                     cart_pts_np[i, 2] = cart_pts[i][2] - mesh.center_mass[2]
@@ -441,6 +446,14 @@ class RobotModel(ERobot):
                     else:
                         raise ValueError(f"For now only box and mesh geometry are supported.\n Link has: {link.visual[0].geometry}")
 
+                    # Scale link if needed
+                    if link.visuals[0].geometry.mesh.scale is not None:
+                        scale_matrix = np.identity(4)
+                        scale_matrix[0, 0] = link.visuals[0].geometry.mesh.scale[0]
+                        scale_matrix[1, 1] = link.visuals[0].geometry.mesh.scale[1]
+                        scale_matrix[2, 2] = link.visuals[0].geometry.mesh.scale[1]
+                        self._visual_meshes[key].apply_transform(scale_matrix)
+
                     # Set the link at it's origin point if needed
                     if link.visuals[0].origin is not None:
                         self._visual_meshes[key].apply_transform(link.visuals[0].origin)
@@ -455,7 +468,7 @@ class RobotModel(ERobot):
                         self.sanitize_mesh(self._simple_visual_meshes[key])
                     else:
                         raise ValueError(f"Decimation ratio should be in ]0, 1] but was {decimation_ratio}")
-
+                    # breakpoint()
         else:
             print("Can't load visual meshes before loading visual URDF")
 
