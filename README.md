@@ -119,11 +119,19 @@ python scripts/example_extended_fk.py        # Run an example of the forward kin
 - [ ] Have a single function to access the object in its correct place
 - [ ] Assess to see if we need to have a threshold
 - [ ] Adaptive contact tolerance on the constraint
+- [x] Incomplete samples from geometry learning
+- [x] Add and fix crawling hand model
+- [x] Fix partial files for learning loading
+- [x] Have all learned links in a single file
+- [ ] Handle multiple geometries for a single link
+- [x] Handle box geometry
+- [ ] Handle cylinder geometry
+- [ ] Handle sphere geometry
 
 #### TODO list
 
 - [ ] Integrate nn distance function
-- [ ] Entire framework as feasability problem
+- [x] Entire framework as feasability problem
 - [ ] Extend the number of contacts (realise for 3-4 contact points)
 - [ ] Force closure for multiple contacts
 - [ ] Add ICub geometry
