@@ -120,13 +120,13 @@ python scripts/example_extended_fk.py        # Run an example of the forward kin
 - [ ] Assess to see if we need to have a threshold
 - [ ] Adaptive contact tolerance on the constraint
 - [x] Incomplete samples from geometry learning
-- [x] Add and fix crawling hand model
 - [x] Fix partial files for learning loading
 - [x] Have all learned links in a single file
 - [ ] Handle multiple geometries for a single link
 - [x] Handle box geometry
 - [ ] Handle cylinder geometry
 - [ ] Handle sphere geometry
+- [ ] Find the hidden bug that leads to wrong link maps when using links w/o visual
 
 #### TODO list
 
@@ -135,3 +135,5 @@ python scripts/example_extended_fk.py        # Run an example of the forward kin
 - [ ] Extend the number of contacts (realise for 3-4 contact points)
 - [ ] Force closure for multiple contacts
 - [ ] Add ICub geometry
+- [x] Add and fix crawling hand finger
+- [ ] Add and fix full crawling hand model

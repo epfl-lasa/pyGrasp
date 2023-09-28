@@ -1,12 +1,5 @@
 <?xml version="1.0" ?>
-<robot name="converted_robot">
-   <link name="world">
-      <inertial>
-         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-         <mass value="0.0"/>
-         <inertia ixx="0.0" iyy="0.0" izz="0.0" ixy="0" ixz="0" iyz="0"/>
-      </inertial>
-   </link>
+<robot name="crawling_hand">
    <link name="hand">
       <inertial>
          <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
@@ -21,23 +14,6 @@
          </geometry>
       </visual>
    </link>
-   <link name="world2world_fixed">
-      <inertial>
-         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-         <mass value="0.001"/>
-         <inertia ixx="1e-09" iyy="1e-09" izz="1e-09" ixy="0" ixz="0" iyz="0"/>
-      </inertial>
-   </link>
-   <joint type="fixed" name="world2world_fixed">
-      <parent link="world"/>
-      <child link="world2world_fixed"/>
-      <origin xyz="0.0 0.0 0.01" rpy="0.0 0.0 0.0"/>
-   </joint>
-   <joint type="fixed" name="world2world_fixed_offset">
-      <parent link="world2world_fixed"/>
-      <child link="hand"/>
-      <origin xyz="-0.0 -0.0 -0.0" rpy="0.0 0.0 0.0"/>
-   </joint>
    <link name="finger_1">
       <inertial>
          <origin xyz="5.810609836920757e-14 -3.5557377263056094e-06 0.004698273696031688" rpy="0 0 0"/>
@@ -60,22 +36,10 @@
          </geometry>
       </collision>
    </link>
-   <link name="hand2finger_1_fixed">
-      <inertial>
-         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-         <mass value="0.001"/>
-         <inertia ixx="1e-09" iyy="1e-09" izz="1e-09" ixy="0" ixz="0" iyz="0"/>
-      </inertial>
-   </link>
    <joint type="fixed" name="hand2finger_1_fixed">
       <parent link="hand"/>
-      <child link="hand2finger_1_fixed"/>
-      <origin xyz="0.0 0.11 0.006" rpy="0.0 0.0 0.0"/>
-   </joint>
-   <joint type="fixed" name="hand2finger_1_fixed_offset">
-      <parent link="hand2finger_1_fixed"/>
       <child link="finger_1"/>
-      <origin xyz="-0.0 -0.0 -0.0" rpy="0.0 0.0 0.0"/>
+      <origin xyz="0.0 0.11 0.006" rpy="0.0 0.0 0.0"/>
    </joint>
    <link name="MCP_spread_motor_1">
       <inertial>
@@ -99,24 +63,12 @@
          </geometry>
       </collision>
    </link>
-   <link name="MCP_spread_1">
-      <inertial>
-         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-         <mass value="0.001"/>
-         <inertia ixx="1e-09" iyy="1e-09" izz="1e-09" ixy="0" ixz="0" iyz="0"/>
-      </inertial>
-   </link>
    <joint type="revolute" name="MCP_spread_1">
       <parent link="finger_1"/>
-      <child link="MCP_spread_1"/>
+      <child link="MCP_spread_motor_1"/>
       <origin xyz="0.0 0.0 0.0036" rpy="0.0 0.0 0.0"/>
       <axis xyz="0.0 0.0 -1.0"/>
       <limit lower="-2.0" upper="2.0" effort="100" velocity="100"/>
-   </joint>
-   <joint type="fixed" name="MCP_spread_1_offset">
-      <parent link="MCP_spread_1"/>
-      <child link="MCP_spread_motor_1"/>
-      <origin xyz="-0.0 -0.0 -0.0" rpy="0.0 0.0 0.0"/>
    </joint>
    <link name="MCP_motor_1">
       <inertial>
@@ -308,22 +260,10 @@
          </geometry>
       </collision>
    </link>
-   <link name="hand2finger_2_fixed">
-      <inertial>
-         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-         <mass value="0.001"/>
-         <inertia ixx="1e-09" iyy="1e-09" izz="1e-09" ixy="0" ixz="0" iyz="0"/>
-      </inertial>
-   </link>
    <joint type="fixed" name="hand2finger_2_fixed">
       <parent link="hand"/>
-      <child link="hand2finger_2_fixed"/>
-      <origin xyz="-0.11 0.0 0.006" rpy="0.0 0.0 1.5707963267948963"/>
-   </joint>
-   <joint type="fixed" name="hand2finger_2_fixed_offset">
-      <parent link="hand2finger_2_fixed"/>
       <child link="finger_2"/>
-      <origin xyz="-0.0 -0.0 -0.0" rpy="0.0 0.0 0.0"/>
+      <origin xyz="-0.11 0.0 0.006" rpy="0.0 0.0 1.5707963267948963"/>
    </joint>
    <link name="MCP_spread_motor_2">
       <inertial>
@@ -347,24 +287,12 @@
          </geometry>
       </collision>
    </link>
-   <link name="MCP_spread_2">
-      <inertial>
-         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-         <mass value="0.001"/>
-         <inertia ixx="1e-09" iyy="1e-09" izz="1e-09" ixy="0" ixz="0" iyz="0"/>
-      </inertial>
-   </link>
    <joint type="revolute" name="MCP_spread_2">
       <parent link="finger_2"/>
-      <child link="MCP_spread_2"/>
+      <child link="MCP_spread_motor_2"/>
       <origin xyz="0.0 0.0 0.0036" rpy="0.0 0.0 0.0"/>
       <axis xyz="0.0 0.0 -1.0"/>
       <limit lower="-2.0" upper="2.0" effort="100" velocity="100"/>
-   </joint>
-   <joint type="fixed" name="MCP_spread_2_offset">
-      <parent link="MCP_spread_2"/>
-      <child link="MCP_spread_motor_2"/>
-      <origin xyz="-0.0 -0.0 -0.0" rpy="0.0 0.0 0.0"/>
    </joint>
    <link name="MCP_motor_2">
       <inertial>
@@ -556,22 +484,10 @@
          </geometry>
       </collision>
    </link>
-   <link name="hand2finger_3_fixed">
-      <inertial>
-         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-         <mass value="0.001"/>
-         <inertia ixx="1e-09" iyy="1e-09" izz="1e-09" ixy="0" ixz="0" iyz="0"/>
-      </inertial>
-   </link>
    <joint type="fixed" name="hand2finger_3_fixed">
       <parent link="hand"/>
-      <child link="hand2finger_3_fixed"/>
-      <origin xyz="-0.11 0.06 0.006" rpy="0.0 0.0 1.5707963267948963"/>
-   </joint>
-   <joint type="fixed" name="hand2finger_3_fixed_offset">
-      <parent link="hand2finger_3_fixed"/>
       <child link="finger_3"/>
-      <origin xyz="-0.0 -0.0 -0.0" rpy="0.0 0.0 0.0"/>
+      <origin xyz="-0.11 0.06 0.006" rpy="0.0 0.0 1.5707963267948963"/>
    </joint>
    <link name="MCP_spread_motor_3">
       <inertial>
@@ -595,24 +511,12 @@
          </geometry>
       </collision>
    </link>
-   <link name="MCP_spread_3">
-      <inertial>
-         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-         <mass value="0.001"/>
-         <inertia ixx="1e-09" iyy="1e-09" izz="1e-09" ixy="0" ixz="0" iyz="0"/>
-      </inertial>
-   </link>
    <joint type="revolute" name="MCP_spread_3">
       <parent link="finger_3"/>
-      <child link="MCP_spread_3"/>
+      <child link="MCP_spread_motor_3"/>
       <origin xyz="0.0 0.0 0.0036" rpy="0.0 0.0 0.0"/>
       <axis xyz="0.0 0.0 -1.0"/>
       <limit lower="-2.0" upper="2.0" effort="100" velocity="100"/>
-   </joint>
-   <joint type="fixed" name="MCP_spread_3_offset">
-      <parent link="MCP_spread_3"/>
-      <child link="MCP_spread_motor_3"/>
-      <origin xyz="-0.0 -0.0 -0.0" rpy="0.0 0.0 0.0"/>
    </joint>
    <link name="MCP_motor_3">
       <inertial>
@@ -804,22 +708,10 @@
          </geometry>
       </collision>
    </link>
-   <link name="hand2finger_4_fixed">
-      <inertial>
-         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-         <mass value="0.001"/>
-         <inertia ixx="1e-09" iyy="1e-09" izz="1e-09" ixy="0" ixz="0" iyz="0"/>
-      </inertial>
-   </link>
    <joint type="fixed" name="hand2finger_4_fixed">
       <parent link="hand"/>
-      <child link="hand2finger_4_fixed"/>
-      <origin xyz="-0.11 -0.06 0.006" rpy="0.0 0.0 1.5707963267948963"/>
-   </joint>
-   <joint type="fixed" name="hand2finger_4_fixed_offset">
-      <parent link="hand2finger_4_fixed"/>
       <child link="finger_4"/>
-      <origin xyz="-0.0 -0.0 -0.0" rpy="0.0 0.0 0.0"/>
+      <origin xyz="-0.11 -0.06 0.006" rpy="0.0 0.0 1.5707963267948963"/>
    </joint>
    <link name="MCP_spread_motor_4">
       <inertial>
@@ -843,24 +735,12 @@
          </geometry>
       </collision>
    </link>
-   <link name="MCP_spread_4">
-      <inertial>
-         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-         <mass value="0.001"/>
-         <inertia ixx="1e-09" iyy="1e-09" izz="1e-09" ixy="0" ixz="0" iyz="0"/>
-      </inertial>
-   </link>
    <joint type="revolute" name="MCP_spread_4">
       <parent link="finger_4"/>
-      <child link="MCP_spread_4"/>
+      <child link="MCP_spread_motor_4"/>
       <origin xyz="0.0 0.0 0.0036" rpy="0.0 0.0 0.0"/>
       <axis xyz="0.0 0.0 -1.0"/>
       <limit lower="-2.0" upper="2.0" effort="100" velocity="100"/>
-   </joint>
-   <joint type="fixed" name="MCP_spread_4_offset">
-      <parent link="MCP_spread_4"/>
-      <child link="MCP_spread_motor_4"/>
-      <origin xyz="-0.0 -0.0 -0.0" rpy="0.0 0.0 0.0"/>
    </joint>
    <link name="MCP_motor_4">
       <inertial>
@@ -1052,22 +932,10 @@
          </geometry>
       </collision>
    </link>
-   <link name="hand2finger_5_fixed">
-      <inertial>
-         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-         <mass value="0.001"/>
-         <inertia ixx="1e-09" iyy="1e-09" izz="1e-09" ixy="0" ixz="0" iyz="0"/>
-      </inertial>
-   </link>
    <joint type="fixed" name="hand2finger_5_fixed">
       <parent link="hand"/>
-      <child link="hand2finger_5_fixed"/>
-      <origin xyz="-0.05 -0.11 0.006" rpy="0.0 0.0 3.141592653589793"/>
-   </joint>
-   <joint type="fixed" name="hand2finger_5_fixed_offset">
-      <parent link="hand2finger_5_fixed"/>
       <child link="finger_5"/>
-      <origin xyz="-0.0 -0.0 -0.0" rpy="0.0 0.0 0.0"/>
+      <origin xyz="-0.05 -0.11 0.006" rpy="0.0 0.0 3.141592653589793"/>
    </joint>
    <link name="MCP_spread_motor_5">
       <inertial>
@@ -1091,24 +959,12 @@
          </geometry>
       </collision>
    </link>
-   <link name="MCP_spread_5">
-      <inertial>
-         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-         <mass value="0.001"/>
-         <inertia ixx="1e-09" iyy="1e-09" izz="1e-09" ixy="0" ixz="0" iyz="0"/>
-      </inertial>
-   </link>
    <joint type="revolute" name="MCP_spread_5">
       <parent link="finger_5"/>
-      <child link="MCP_spread_5"/>
+      <child link="MCP_spread_motor_5"/>
       <origin xyz="0.0 0.0 0.0036" rpy="0.0 0.0 0.0"/>
       <axis xyz="0.0 0.0 -1.0"/>
       <limit lower="-2.0" upper="2.0" effort="100" velocity="100"/>
-   </joint>
-   <joint type="fixed" name="MCP_spread_5_offset">
-      <parent link="MCP_spread_5"/>
-      <child link="MCP_spread_motor_5"/>
-      <origin xyz="-0.0 -0.0 -0.0" rpy="0.0 0.0 0.0"/>
    </joint>
    <link name="MCP_motor_5">
       <inertial>
@@ -1300,22 +1156,10 @@
          </geometry>
       </collision>
    </link>
-   <link name="hand2finger_6_fixed">
-      <inertial>
-         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-         <mass value="0.001"/>
-         <inertia ixx="1e-09" iyy="1e-09" izz="1e-09" ixy="0" ixz="0" iyz="0"/>
-      </inertial>
-   </link>
    <joint type="fixed" name="hand2finger_6_fixed">
       <parent link="hand"/>
-      <child link="hand2finger_6_fixed"/>
-      <origin xyz="0.05 -0.11 0.006" rpy="0.0 0.0 3.141592653589793"/>
-   </joint>
-   <joint type="fixed" name="hand2finger_6_fixed_offset">
-      <parent link="hand2finger_6_fixed"/>
       <child link="finger_6"/>
-      <origin xyz="-0.0 -0.0 -0.0" rpy="0.0 0.0 0.0"/>
+      <origin xyz="0.05 -0.11 0.006" rpy="0.0 0.0 3.141592653589793"/>
    </joint>
    <link name="MCP_spread_motor_6">
       <inertial>
@@ -1339,24 +1183,12 @@
          </geometry>
       </collision>
    </link>
-   <link name="MCP_spread_6">
-      <inertial>
-         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-         <mass value="0.001"/>
-         <inertia ixx="1e-09" iyy="1e-09" izz="1e-09" ixy="0" ixz="0" iyz="0"/>
-      </inertial>
-   </link>
    <joint type="revolute" name="MCP_spread_6">
       <parent link="finger_6"/>
-      <child link="MCP_spread_6"/>
+      <child link="MCP_spread_motor_6"/>
       <origin xyz="0.0 0.0 0.0036" rpy="0.0 0.0 0.0"/>
       <axis xyz="0.0 0.0 -1.0"/>
       <limit lower="-2.0" upper="2.0" effort="100" velocity="100"/>
-   </joint>
-   <joint type="fixed" name="MCP_spread_6_offset">
-      <parent link="MCP_spread_6"/>
-      <child link="MCP_spread_motor_6"/>
-      <origin xyz="-0.0 -0.0 -0.0" rpy="0.0 0.0 0.0"/>
    </joint>
    <link name="MCP_motor_6">
       <inertial>

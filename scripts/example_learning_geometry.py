@@ -5,7 +5,7 @@ import pyGrasp.utils as pgu
 from pyGrasp.robot_model import RobotModel
 
 # Choose your example robot here
-SELECTED_ROBOT = pgu.CH_FINGER_LONG_URDF_PATH # Find all possible robot in the utils.py file
+SELECTED_ROBOT = pgu.CH_LONG_URDF_PATH # Find all possible robot in the utils.py file
 
 
 def main() -> None:
@@ -24,7 +24,7 @@ def main() -> None:
         raise FileNotFoundError(f"URDF provided is not a valid file path: {SELECTED_ROBOT}")
 
     # Learning robot geometry and plot
-    robot_model.learn_geometry(nb_learning_pts=1000, verbose=True, force_recompute=False)
+    robot_model.learn_geometry(nb_learning_pts=5000, verbose=True, force_recompute=False)
     robot_model.show_geometries()
 
 
