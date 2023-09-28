@@ -161,11 +161,14 @@ class RobotModel(ERobot):
         print("Learning geometries")
         training_scores = []
 
-        for key, mesh in tqdm(self._visual_meshes.items()):
-            current_nb_pts = nb_learning_pts
-            # Check if the file exist
-            save_file = pgu.CACHE_FOLDER / pathlib.Path(self.name + "_" + key + ".pickle")
-            if force_recompute or not save_file.is_file():
+        save_file = pgu.CACHE_FOLDER / pathlib.Path(self.name + "learned_geometries.pickle")
+
+        if force_recompute or not save_file.is_file():
+
+            for key, mesh in tqdm(self._visual_meshes.items()):
+
+                # Check if the file exist
+                save_file = pgu.CACHE_FOLDER / pathlib.Path(self.name + "_" + key + ".pickle")
 
                 if verbose:
                     print(f"Computing geometry model for link {key}")
@@ -196,21 +199,20 @@ class RobotModel(ERobot):
                 if verbose:
                     training_scores.append(self._learned_geometries[key].score(X, y))
 
-                # Save learned model
-                with open(str(save_file), 'wb') as fp:
-                    pickle.dump(self._learned_geometries[key], fp, protocol=pickle.HIGHEST_PROTOCOL)
+            # Display results
+            if verbose and len(training_scores) > 0:
+                for i, key in enumerate(self._learned_geometries.keys()):
+                    print(f"Training score for {key}: {training_scores[i]}")
 
-            # Load saved files
-            else:
-                if verbose:
-                    print(f"Found {save_file}, loading...")
-                with open(str(save_file), 'rb') as fp:
-                    self._learned_geometries[key] = pickle.load(fp)
+            # Save learned model
+            with open(str(save_file), 'wb') as fp:
+                pickle.dump(self._learned_geometries, fp, protocol=pickle.HIGHEST_PROTOCOL)
 
-        # Display results
-        if verbose and len(training_scores) > 0:
-            for i, key in enumerate(self._learned_geometries.keys()):
-                print(f"Training score for {key}: {training_scores[i]}")
+        # Load learned geometries from cache
+        else:
+            print("Loading learned geometries")
+            with open(str(save_file), 'rb') as fp:
+                self._learned_geometries = pickle.load(fp)
 
     def show_geometries(self) -> None:
         for key in self._learned_geometries.keys():
