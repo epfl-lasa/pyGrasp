@@ -1,0 +1,1364 @@
+<?xml version="1.0" ?>
+<robot name="crawling_hand">
+   <link name="hand">
+      <inertial>
+         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+         <mass value="0.5120000000000001"/>
+         <inertia ixx="0.0011093333333333337" iyy="0.0011093333333333337" izz="0.002184533333333334" ixy="0" ixz="0" iyz="0"/>
+      </inertial>
+      <visual name="hand">
+         <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+         <geometry>
+            <box size="0.16 0.16 0.02"/>
+            <material name="white"/>
+         </geometry>
+      </visual>
+   </link>
+   <link name="finger_1">
+      <inertial>
+         <origin xyz="5.810609836920757e-14 -3.5557377263056094e-06 0.004698273696031688" rpy="0 0 0"/>
+         <mass value="0.004531103214243681"/>
+         <inertia ixx="0.0" iyy="0.0" izz="0.0" ixy="-0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/base_link.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/base_link.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="hand2finger_1_fixed">
+      <parent link="hand"/>
+      <child link="finger_1"/>
+      <origin xyz="0.0 0.11 0.006" rpy="0.0 0.0 0.0"/>
+   </joint>
+   <link name="MCP_spread_motor_1">
+      <inertial>
+         <origin xyz="4.40257654920099e-06 -0.0075382982459979535 -0.011349379478781948" rpy="0 0 0"/>
+         <mass value="0.11379089624899982"/>
+         <inertia ixx="1.6e-05" iyy="8e-06" izz="1.5e-05" ixy="0.0" iyz="0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0 0.0 -0.0036" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_spread_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0 0.0 -0.0036" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_spread_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="revolute" name="MCP_spread_1">
+      <parent link="finger_1"/>
+      <child link="MCP_spread_motor_1"/>
+      <origin xyz="0.0 0.0 0.0036" rpy="0.0 0.0 0.0"/>
+      <axis xyz="0.0 0.0 -1.0"/>
+      <limit lower="-2.0" upper="2.0" effort="100" velocity="100"/>
+   </joint>
+   <link name="MCP_motor_1">
+      <inertial>
+         <origin xyz="-0.011349379464972085 0.00753829824657392 4.402565036948358e-06" rpy="0 0 0"/>
+         <mass value="0.11379089638693089"/>
+         <inertia ixx="1.5e-05" iyy="8e-06" izz="1.6e-05" ixy="-0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0106 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0106 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <link name="MCP_1">
+      <inertial>
+         <origin xyz="0.00044378321626828974 0.0038849382654235335 -0.011500000000001412" rpy="0 0 0"/>
+         <mass value="0.11944139301006772"/>
+         <inertia ixx="5.5e-05" iyy="2.8e-05" izz="7.3e-05" ixy="-2e-06" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0 -0.0 -0.0035" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/metacarpal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0 -0.0 -0.0035" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/metacarpal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="MCP_to_motor_1">
+      <parent link="MCP_spread_motor_1"/>
+      <child link="MCP_1"/>
+      <origin xyz="0.0 0.0 -0.0001" rpy="0 0 0"/>
+   </joint>
+   <joint type="revolute" name="MCP_1">
+      <parent link="MCP_1"/>
+      <child link="MCP_motor_1"/>
+      <origin xyz="0.0106 0.0435 -0.0115" rpy="0 0 0"/>
+      <axis xyz="-1.0 -0.0 -0.0"/>
+      <limit effort="0" velocity="0" lower="0." upper="2." />
+   </joint>
+   <link name="PIP_DIP_motor_1">
+      <inertial>
+         <origin xyz="-0.011349379464972083 0.007538298247408273 4.402565036993461e-06" rpy="0 0 0"/>
+         <mass value="0.11379089638693095"/>
+         <inertia ixx="1.5e-05" iyy="8e-06" izz="1.6e-05" ixy="-0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0106 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/PIP_DIP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0106 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/PIP_DIP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <link name="PIP_1">
+      <inertial>
+         <origin xyz="-0.008169135912463519 0.03727461554779869 -3.230055112268815e-15" rpy="0 0 0"/>
+         <mass value="0.05275493771588791"/>
+         <inertia ixx="1.6e-05" iyy="1.2e-05" izz="2.6e-05" ixy="0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0105 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/proximal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0105 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/proximal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="PIP_1">
+      <parent link="MCP_motor_1"/>
+      <child link="PIP_1"/>
+      <origin xyz="-0.0001 0.0 0.0" rpy="0 0 0"/>
+   </joint>
+   <joint type="revolute" name="PIP_1_offset">
+      <parent link="PIP_1"/>
+      <child link="PIP_DIP_motor_1"/>
+      <origin xyz="0.0001 0.059 0.0" rpy="0 0 0"/>
+      <axis xyz="-1.0 -0.0 0.0"/>
+      <limit effort="0" velocity="0" lower="0" upper="2.1" />
+   </joint>
+   <link name="distal_1">
+      <inertial>
+         <origin xyz="-0.013499999999999996 0.02735449827278072 3.469446951953614e-18" rpy="0 0 0"/>
+         <mass value="0.18955441844471713"/>
+         <inertia ixx="5.4e-05" iyy="1.4e-05" izz="5.5e-05" ixy="0.0" iyz="-0.0" ixz="0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0135 -0.153 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/distal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0135 -0.153 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/distal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <link name="DIP_1">
+      <inertial>
+         <origin xyz="-0.008827081354573583 0.03128096306151058 1.214306433183765e-17" rpy="0 0 0"/>
+         <mass value="0.041818234501644305"/>
+         <inertia ixx="9e-06" iyy="1e-05" izz="1.6e-05" ixy="1e-06" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0105 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/middle_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0105 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/middle_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="DIP_1">
+      <parent link="PIP_DIP_motor_1"/>
+      <child link="DIP_1"/>
+      <origin xyz="-0.0001 0.0 0.0" rpy="0 0 0"/>
+   </joint>
+   <joint type="revolute" name="DIP_1_offset">
+      <parent link="DIP_1"/>
+      <child link="distal_1"/>
+      <origin xyz="0.003 0.0505 0.0" rpy="0 0 0"/>
+      <axis xyz="1.0 0.0 -0.0"/>
+      <limit effort="0" velocity="0" lower="-2.1" upper="0" />
+   </joint>
+   <link name="finger_2">
+      <inertial>
+         <origin xyz="5.810609836920757e-14 -3.5557377263056094e-06 0.004698273696031688" rpy="0 0 0"/>
+         <mass value="0.004531103214243681"/>
+         <inertia ixx="0.0" iyy="0.0" izz="0.0" ixy="-0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/base_link.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/base_link.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="hand2finger_2_fixed">
+      <parent link="hand"/>
+      <child link="finger_2"/>
+      <origin xyz="-0.11 0.0 0.006" rpy="0.0 0.0 1.5707963267948963"/>
+   </joint>
+   <link name="MCP_spread_motor_2">
+      <inertial>
+         <origin xyz="4.40257654920099e-06 -0.0075382982459979535 -0.011349379478781948" rpy="0 0 0"/>
+         <mass value="0.11379089624899982"/>
+         <inertia ixx="1.6e-05" iyy="8e-06" izz="1.5e-05" ixy="0.0" iyz="0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0 0.0 -0.0036" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_spread_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0 0.0 -0.0036" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_spread_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="revolute" name="MCP_spread_2">
+      <parent link="finger_2"/>
+      <child link="MCP_spread_motor_2"/>
+      <origin xyz="0.0 0.0 0.0036" rpy="0.0 0.0 0.0"/>
+      <axis xyz="0.0 0.0 -1.0"/>
+      <limit lower="-2.0" upper="2.0" effort="100" velocity="100"/>
+   </joint>
+   <link name="MCP_motor_2">
+      <inertial>
+         <origin xyz="-0.011349379464972085 0.00753829824657392 4.402565036948358e-06" rpy="0 0 0"/>
+         <mass value="0.11379089638693089"/>
+         <inertia ixx="1.5e-05" iyy="8e-06" izz="1.6e-05" ixy="-0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0106 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0106 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <link name="MCP_2">
+      <inertial>
+         <origin xyz="0.00044378321626828974 0.0038849382654235335 -0.011500000000001412" rpy="0 0 0"/>
+         <mass value="0.11944139301006772"/>
+         <inertia ixx="5.5e-05" iyy="2.8e-05" izz="7.3e-05" ixy="-2e-06" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0 -0.0 -0.0035" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/metacarpal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0 -0.0 -0.0035" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/metacarpal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="MCP_to_motor_2">
+      <parent link="MCP_spread_motor_2"/>
+      <child link="MCP_2"/>
+      <origin xyz="0.0 0.0 -0.0001" rpy="0 0 0"/>
+   </joint>
+   <joint type="revolute" name="MCP_2">
+      <parent link="MCP_2"/>
+      <child link="MCP_motor_2"/>
+      <origin xyz="0.0106 0.0435 -0.0115" rpy="0 0 0"/>
+      <axis xyz="-1.0 -0.0 -0.0"/>
+      <limit effort="0" velocity="0" lower="0." upper="2." />
+   </joint>
+   <link name="PIP_DIP_motor_2">
+      <inertial>
+         <origin xyz="-0.011349379464972083 0.007538298247408273 4.402565036993461e-06" rpy="0 0 0"/>
+         <mass value="0.11379089638693095"/>
+         <inertia ixx="1.5e-05" iyy="8e-06" izz="1.6e-05" ixy="-0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0106 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/PIP_DIP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0106 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/PIP_DIP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <link name="PIP_2">
+      <inertial>
+         <origin xyz="-0.008169135912463519 0.03727461554779869 -3.230055112268815e-15" rpy="0 0 0"/>
+         <mass value="0.05275493771588791"/>
+         <inertia ixx="1.6e-05" iyy="1.2e-05" izz="2.6e-05" ixy="0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0105 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/proximal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0105 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/proximal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="PIP_2">
+      <parent link="MCP_motor_2"/>
+      <child link="PIP_2"/>
+      <origin xyz="-0.0001 0.0 0.0" rpy="0 0 0"/>
+   </joint>
+   <joint type="revolute" name="PIP_2_offset">
+      <parent link="PIP_2"/>
+      <child link="PIP_DIP_motor_2"/>
+      <origin xyz="0.0001 0.059 0.0" rpy="0 0 0"/>
+      <axis xyz="-1.0 -0.0 0.0"/>
+      <limit effort="0" velocity="0" lower="0" upper="2.1" />
+   </joint>
+   <link name="distal_2">
+      <inertial>
+         <origin xyz="-0.013499999999999996 0.02735449827278072 3.469446951953614e-18" rpy="0 0 0"/>
+         <mass value="0.18955441844471713"/>
+         <inertia ixx="5.4e-05" iyy="1.4e-05" izz="5.5e-05" ixy="0.0" iyz="-0.0" ixz="0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0135 -0.153 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/distal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0135 -0.153 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/distal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <link name="DIP_2">
+      <inertial>
+         <origin xyz="-0.008827081354573583 0.03128096306151058 1.214306433183765e-17" rpy="0 0 0"/>
+         <mass value="0.041818234501644305"/>
+         <inertia ixx="9e-06" iyy="1e-05" izz="1.6e-05" ixy="1e-06" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0105 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/middle_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0105 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/middle_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="DIP_2">
+      <parent link="PIP_DIP_motor_2"/>
+      <child link="DIP_2"/>
+      <origin xyz="-0.0001 0.0 0.0" rpy="0 0 0"/>
+   </joint>
+   <joint type="revolute" name="DIP_2_offset">
+      <parent link="DIP_2"/>
+      <child link="distal_2"/>
+      <origin xyz="0.003 0.0505 0.0" rpy="0 0 0"/>
+      <axis xyz="1.0 0.0 -0.0"/>
+      <limit effort="0" velocity="0" lower="-2.1" upper="0" />
+   </joint>
+   <link name="finger_3">
+      <inertial>
+         <origin xyz="5.810609836920757e-14 -3.5557377263056094e-06 0.004698273696031688" rpy="0 0 0"/>
+         <mass value="0.004531103214243681"/>
+         <inertia ixx="0.0" iyy="0.0" izz="0.0" ixy="-0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/base_link.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/base_link.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="hand2finger_3_fixed">
+      <parent link="hand"/>
+      <child link="finger_3"/>
+      <origin xyz="-0.11 0.06 0.006" rpy="0.0 0.0 1.5707963267948963"/>
+   </joint>
+   <link name="MCP_spread_motor_3">
+      <inertial>
+         <origin xyz="4.40257654920099e-06 -0.0075382982459979535 -0.011349379478781948" rpy="0 0 0"/>
+         <mass value="0.11379089624899982"/>
+         <inertia ixx="1.6e-05" iyy="8e-06" izz="1.5e-05" ixy="0.0" iyz="0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0 0.0 -0.0036" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_spread_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0 0.0 -0.0036" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_spread_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="revolute" name="MCP_spread_3">
+      <parent link="finger_3"/>
+      <child link="MCP_spread_motor_3"/>
+      <origin xyz="0.0 0.0 0.0036" rpy="0.0 0.0 0.0"/>
+      <axis xyz="0.0 0.0 -1.0"/>
+      <limit lower="-2.0" upper="2.0" effort="100" velocity="100"/>
+   </joint>
+   <link name="MCP_motor_3">
+      <inertial>
+         <origin xyz="-0.011349379464972085 0.00753829824657392 4.402565036948358e-06" rpy="0 0 0"/>
+         <mass value="0.11379089638693089"/>
+         <inertia ixx="1.5e-05" iyy="8e-06" izz="1.6e-05" ixy="-0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0106 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0106 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <link name="MCP_3">
+      <inertial>
+         <origin xyz="0.00044378321626828974 0.0038849382654235335 -0.011500000000001412" rpy="0 0 0"/>
+         <mass value="0.11944139301006772"/>
+         <inertia ixx="5.5e-05" iyy="2.8e-05" izz="7.3e-05" ixy="-2e-06" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0 -0.0 -0.0035" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/metacarpal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0 -0.0 -0.0035" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/metacarpal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="MCP_to_motor_3">
+      <parent link="MCP_spread_motor_3"/>
+      <child link="MCP_3"/>
+      <origin xyz="0.0 0.0 -0.0001" rpy="0 0 0"/>
+   </joint>
+   <joint type="revolute" name="MCP_3">
+      <parent link="MCP_3"/>
+      <child link="MCP_motor_3"/>
+      <origin xyz="0.0106 0.0435 -0.0115" rpy="0 0 0"/>
+      <axis xyz="-1.0 -0.0 -0.0"/>
+      <limit effort="0" velocity="0" lower="0." upper="2." />
+   </joint>
+   <link name="PIP_DIP_motor_3">
+      <inertial>
+         <origin xyz="-0.011349379464972083 0.007538298247408273 4.402565036993461e-06" rpy="0 0 0"/>
+         <mass value="0.11379089638693095"/>
+         <inertia ixx="1.5e-05" iyy="8e-06" izz="1.6e-05" ixy="-0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0106 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/PIP_DIP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0106 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/PIP_DIP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <link name="PIP_3">
+      <inertial>
+         <origin xyz="-0.008169135912463519 0.03727461554779869 -3.230055112268815e-15" rpy="0 0 0"/>
+         <mass value="0.05275493771588791"/>
+         <inertia ixx="1.6e-05" iyy="1.2e-05" izz="2.6e-05" ixy="0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0105 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/proximal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0105 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/proximal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="PIP_3">
+      <parent link="MCP_motor_3"/>
+      <child link="PIP_3"/>
+      <origin xyz="-0.0001 0.0 0.0" rpy="0 0 0"/>
+   </joint>
+   <joint type="revolute" name="PIP_3_offset">
+      <parent link="PIP_3"/>
+      <child link="PIP_DIP_motor_3"/>
+      <origin xyz="0.0001 0.059 0.0" rpy="0 0 0"/>
+      <axis xyz="-1.0 -0.0 0.0"/>
+      <limit effort="0" velocity="0" lower="0" upper="2.1" />
+   </joint>
+   <link name="distal_3">
+      <inertial>
+         <origin xyz="-0.013499999999999996 0.02735449827278072 3.469446951953614e-18" rpy="0 0 0"/>
+         <mass value="0.18955441844471713"/>
+         <inertia ixx="5.4e-05" iyy="1.4e-05" izz="5.5e-05" ixy="0.0" iyz="-0.0" ixz="0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0135 -0.153 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/distal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0135 -0.153 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/distal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <link name="DIP_3">
+      <inertial>
+         <origin xyz="-0.008827081354573583 0.03128096306151058 1.214306433183765e-17" rpy="0 0 0"/>
+         <mass value="0.041818234501644305"/>
+         <inertia ixx="9e-06" iyy="1e-05" izz="1.6e-05" ixy="1e-06" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0105 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/middle_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0105 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/middle_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="DIP_3">
+      <parent link="PIP_DIP_motor_3"/>
+      <child link="DIP_3"/>
+      <origin xyz="-0.0001 0.0 0.0" rpy="0 0 0"/>
+   </joint>
+   <joint type="revolute" name="DIP_3_offset">
+      <parent link="DIP_3"/>
+      <child link="distal_3"/>
+      <origin xyz="0.003 0.0505 0.0" rpy="0 0 0"/>
+      <axis xyz="1.0 0.0 -0.0"/>
+      <limit effort="0" velocity="0" lower="-2.1" upper="0" />
+   </joint>
+   <link name="finger_4">
+      <inertial>
+         <origin xyz="5.810609836920757e-14 -3.5557377263056094e-06 0.004698273696031688" rpy="0 0 0"/>
+         <mass value="0.004531103214243681"/>
+         <inertia ixx="0.0" iyy="0.0" izz="0.0" ixy="-0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/base_link.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/base_link.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="hand2finger_4_fixed">
+      <parent link="hand"/>
+      <child link="finger_4"/>
+      <origin xyz="-0.11 -0.06 0.006" rpy="0.0 0.0 1.5707963267948963"/>
+   </joint>
+   <link name="MCP_spread_motor_4">
+      <inertial>
+         <origin xyz="4.40257654920099e-06 -0.0075382982459979535 -0.011349379478781948" rpy="0 0 0"/>
+         <mass value="0.11379089624899982"/>
+         <inertia ixx="1.6e-05" iyy="8e-06" izz="1.5e-05" ixy="0.0" iyz="0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0 0.0 -0.0036" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_spread_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0 0.0 -0.0036" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_spread_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="revolute" name="MCP_spread_4">
+      <parent link="finger_4"/>
+      <child link="MCP_spread_motor_4"/>
+      <origin xyz="0.0 0.0 0.0036" rpy="0.0 0.0 0.0"/>
+      <axis xyz="0.0 0.0 -1.0"/>
+      <limit lower="-2.0" upper="2.0" effort="100" velocity="100"/>
+   </joint>
+   <link name="MCP_motor_4">
+      <inertial>
+         <origin xyz="-0.011349379464972085 0.00753829824657392 4.402565036948358e-06" rpy="0 0 0"/>
+         <mass value="0.11379089638693089"/>
+         <inertia ixx="1.5e-05" iyy="8e-06" izz="1.6e-05" ixy="-0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0106 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0106 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <link name="MCP_4">
+      <inertial>
+         <origin xyz="0.00044378321626828974 0.0038849382654235335 -0.011500000000001412" rpy="0 0 0"/>
+         <mass value="0.11944139301006772"/>
+         <inertia ixx="5.5e-05" iyy="2.8e-05" izz="7.3e-05" ixy="-2e-06" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0 -0.0 -0.0035" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/metacarpal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0 -0.0 -0.0035" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/metacarpal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="MCP_to_motor_4">
+      <parent link="MCP_spread_motor_4"/>
+      <child link="MCP_4"/>
+      <origin xyz="0.0 0.0 -0.0001" rpy="0 0 0"/>
+   </joint>
+   <joint type="revolute" name="MCP_4">
+      <parent link="MCP_4"/>
+      <child link="MCP_motor_4"/>
+      <origin xyz="0.0106 0.0435 -0.0115" rpy="0 0 0"/>
+      <axis xyz="-1.0 -0.0 -0.0"/>
+      <limit effort="0" velocity="0" lower="0." upper="2." />
+   </joint>
+   <link name="PIP_DIP_motor_4">
+      <inertial>
+         <origin xyz="-0.011349379464972083 0.007538298247408273 4.402565036993461e-06" rpy="0 0 0"/>
+         <mass value="0.11379089638693095"/>
+         <inertia ixx="1.5e-05" iyy="8e-06" izz="1.6e-05" ixy="-0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0106 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/PIP_DIP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0106 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/PIP_DIP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <link name="PIP_4">
+      <inertial>
+         <origin xyz="-0.008169135912463519 0.03727461554779869 -3.230055112268815e-15" rpy="0 0 0"/>
+         <mass value="0.05275493771588791"/>
+         <inertia ixx="1.6e-05" iyy="1.2e-05" izz="2.6e-05" ixy="0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0105 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/proximal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0105 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/proximal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="PIP_4">
+      <parent link="MCP_motor_4"/>
+      <child link="PIP_4"/>
+      <origin xyz="-0.0001 0.0 0.0" rpy="0 0 0"/>
+   </joint>
+   <joint type="revolute" name="PIP_4_offset">
+      <parent link="PIP_4"/>
+      <child link="PIP_DIP_motor_4"/>
+      <origin xyz="0.0001 0.059 0.0" rpy="0 0 0"/>
+      <axis xyz="-1.0 -0.0 0.0"/>
+      <limit effort="0" velocity="0" lower="0" upper="2.1" />
+   </joint>
+   <link name="distal_4">
+      <inertial>
+         <origin xyz="-0.013499999999999996 0.02735449827278072 3.469446951953614e-18" rpy="0 0 0"/>
+         <mass value="0.18955441844471713"/>
+         <inertia ixx="5.4e-05" iyy="1.4e-05" izz="5.5e-05" ixy="0.0" iyz="-0.0" ixz="0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0135 -0.153 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/distal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0135 -0.153 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/distal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <link name="DIP_4">
+      <inertial>
+         <origin xyz="-0.008827081354573583 0.03128096306151058 1.214306433183765e-17" rpy="0 0 0"/>
+         <mass value="0.041818234501644305"/>
+         <inertia ixx="9e-06" iyy="1e-05" izz="1.6e-05" ixy="1e-06" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0105 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/middle_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0105 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/middle_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="DIP_4">
+      <parent link="PIP_DIP_motor_4"/>
+      <child link="DIP_4"/>
+      <origin xyz="-0.0001 0.0 0.0" rpy="0 0 0"/>
+   </joint>
+   <joint type="revolute" name="DIP_4_offset">
+      <parent link="DIP_4"/>
+      <child link="distal_4"/>
+      <origin xyz="0.003 0.0505 0.0" rpy="0 0 0"/>
+      <axis xyz="1.0 0.0 -0.0"/>
+      <limit effort="0" velocity="0" lower="-2.1" upper="0" />
+   </joint>
+   <link name="finger_5">
+      <inertial>
+         <origin xyz="5.810609836920757e-14 -3.5557377263056094e-06 0.004698273696031688" rpy="0 0 0"/>
+         <mass value="0.004531103214243681"/>
+         <inertia ixx="0.0" iyy="0.0" izz="0.0" ixy="-0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/base_link.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/base_link.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="hand2finger_5_fixed">
+      <parent link="hand"/>
+      <child link="finger_5"/>
+      <origin xyz="-0.05 -0.11 0.006" rpy="0.0 0.0 3.141592653589793"/>
+   </joint>
+   <link name="MCP_spread_motor_5">
+      <inertial>
+         <origin xyz="4.40257654920099e-06 -0.0075382982459979535 -0.011349379478781948" rpy="0 0 0"/>
+         <mass value="0.11379089624899982"/>
+         <inertia ixx="1.6e-05" iyy="8e-06" izz="1.5e-05" ixy="0.0" iyz="0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0 0.0 -0.0036" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_spread_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0 0.0 -0.0036" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_spread_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="revolute" name="MCP_spread_5">
+      <parent link="finger_5"/>
+      <child link="MCP_spread_motor_5"/>
+      <origin xyz="0.0 0.0 0.0036" rpy="0.0 0.0 0.0"/>
+      <axis xyz="0.0 0.0 -1.0"/>
+      <limit lower="-2.0" upper="2.0" effort="100" velocity="100"/>
+   </joint>
+   <link name="MCP_motor_5">
+      <inertial>
+         <origin xyz="-0.011349379464972085 0.00753829824657392 4.402565036948358e-06" rpy="0 0 0"/>
+         <mass value="0.11379089638693089"/>
+         <inertia ixx="1.5e-05" iyy="8e-06" izz="1.6e-05" ixy="-0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0106 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0106 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <link name="MCP_5">
+      <inertial>
+         <origin xyz="0.00044378321626828974 0.0038849382654235335 -0.011500000000001412" rpy="0 0 0"/>
+         <mass value="0.11944139301006772"/>
+         <inertia ixx="5.5e-05" iyy="2.8e-05" izz="7.3e-05" ixy="-2e-06" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0 -0.0 -0.0035" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/metacarpal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0 -0.0 -0.0035" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/metacarpal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="MCP_to_motor_5">
+      <parent link="MCP_spread_motor_5"/>
+      <child link="MCP_5"/>
+      <origin xyz="0.0 0.0 -0.0001" rpy="0 0 0"/>
+   </joint>
+   <joint type="revolute" name="MCP_5">
+      <parent link="MCP_5"/>
+      <child link="MCP_motor_5"/>
+      <origin xyz="0.0106 0.0435 -0.0115" rpy="0 0 0"/>
+      <axis xyz="-1.0 -0.0 -0.0"/>
+      <limit effort="0" velocity="0" lower="0." upper="2." />
+   </joint>
+   <link name="PIP_DIP_motor_5">
+      <inertial>
+         <origin xyz="-0.011349379464972083 0.007538298247408273 4.402565036993461e-06" rpy="0 0 0"/>
+         <mass value="0.11379089638693095"/>
+         <inertia ixx="1.5e-05" iyy="8e-06" izz="1.6e-05" ixy="-0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0106 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/PIP_DIP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0106 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/PIP_DIP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <link name="PIP_5">
+      <inertial>
+         <origin xyz="-0.008169135912463519 0.03727461554779869 -3.230055112268815e-15" rpy="0 0 0"/>
+         <mass value="0.05275493771588791"/>
+         <inertia ixx="1.6e-05" iyy="1.2e-05" izz="2.6e-05" ixy="0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0105 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/proximal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0105 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/proximal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="PIP_5">
+      <parent link="MCP_motor_5"/>
+      <child link="PIP_5"/>
+      <origin xyz="-0.0001 0.0 0.0" rpy="0 0 0"/>
+   </joint>
+   <joint type="revolute" name="PIP_5_offset">
+      <parent link="PIP_5"/>
+      <child link="PIP_DIP_motor_5"/>
+      <origin xyz="0.0001 0.059 0.0" rpy="0 0 0"/>
+      <axis xyz="-1.0 -0.0 0.0"/>
+      <limit effort="0" velocity="0" lower="0" upper="2.1" />
+   </joint>
+   <link name="distal_5">
+      <inertial>
+         <origin xyz="-0.013499999999999996 0.02735449827278072 3.469446951953614e-18" rpy="0 0 0"/>
+         <mass value="0.18955441844471713"/>
+         <inertia ixx="5.4e-05" iyy="1.4e-05" izz="5.5e-05" ixy="0.0" iyz="-0.0" ixz="0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0135 -0.153 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/distal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0135 -0.153 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/distal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <link name="DIP_5">
+      <inertial>
+         <origin xyz="-0.008827081354573583 0.03128096306151058 1.214306433183765e-17" rpy="0 0 0"/>
+         <mass value="0.041818234501644305"/>
+         <inertia ixx="9e-06" iyy="1e-05" izz="1.6e-05" ixy="1e-06" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0105 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/middle_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0105 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/middle_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="DIP_5">
+      <parent link="PIP_DIP_motor_5"/>
+      <child link="DIP_5"/>
+      <origin xyz="-0.0001 0.0 0.0" rpy="0 0 0"/>
+   </joint>
+   <joint type="revolute" name="DIP_5_offset">
+      <parent link="DIP_5"/>
+      <child link="distal_5"/>
+      <origin xyz="0.003 0.0505 0.0" rpy="0 0 0"/>
+      <axis xyz="1.0 0.0 -0.0"/>
+      <limit effort="0" velocity="0" lower="-2.1" upper="0" />
+   </joint>
+   <link name="finger_6">
+      <inertial>
+         <origin xyz="5.810609836920757e-14 -3.5557377263056094e-06 0.004698273696031688" rpy="0 0 0"/>
+         <mass value="0.004531103214243681"/>
+         <inertia ixx="0.0" iyy="0.0" izz="0.0" ixy="-0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/base_link.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="0 0 0" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/base_link.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="hand2finger_6_fixed">
+      <parent link="hand"/>
+      <child link="finger_6"/>
+      <origin xyz="0.05 -0.11 0.006" rpy="0.0 0.0 3.141592653589793"/>
+   </joint>
+   <link name="MCP_spread_motor_6">
+      <inertial>
+         <origin xyz="4.40257654920099e-06 -0.0075382982459979535 -0.011349379478781948" rpy="0 0 0"/>
+         <mass value="0.11379089624899982"/>
+         <inertia ixx="1.6e-05" iyy="8e-06" izz="1.5e-05" ixy="0.0" iyz="0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0 0.0 -0.0036" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_spread_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0 0.0 -0.0036" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_spread_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="revolute" name="MCP_spread_6">
+      <parent link="finger_6"/>
+      <child link="MCP_spread_motor_6"/>
+      <origin xyz="0.0 0.0 0.0036" rpy="0.0 0.0 0.0"/>
+      <axis xyz="0.0 0.0 -1.0"/>
+      <limit lower="-2.0" upper="2.0" effort="100" velocity="100"/>
+   </joint>
+   <link name="MCP_motor_6">
+      <inertial>
+         <origin xyz="-0.011349379464972085 0.00753829824657392 4.402565036948358e-06" rpy="0 0 0"/>
+         <mass value="0.11379089638693089"/>
+         <inertia ixx="1.5e-05" iyy="8e-06" izz="1.6e-05" ixy="-0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0106 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0106 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/MCP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <link name="MCP_6">
+      <inertial>
+         <origin xyz="0.00044378321626828974 0.0038849382654235335 -0.011500000000001412" rpy="0 0 0"/>
+         <mass value="0.11944139301006772"/>
+         <inertia ixx="5.5e-05" iyy="2.8e-05" izz="7.3e-05" ixy="-2e-06" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0 -0.0 -0.0035" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/metacarpal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0 -0.0 -0.0035" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/metacarpal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="MCP_6">
+      <parent link="MCP_spread_motor_6"/>
+      <child link="MCP_6"/>
+      <origin xyz="0.0 0.0 -0.0001" rpy="0 0 0"/>
+   </joint>
+   <joint type="fixed" name="MCP_to_motor_6">
+      <parent link="MCP_6"/>
+      <child link="MCP_motor_6"/>
+      <origin xyz="0.0106 0.0435 -0.0115" rpy="0 0 0"/>
+      <axis xyz="-1.0 -0.0 -0.0"/>
+      <limit effort="0" velocity="0" lower="0." upper="2." />
+   </joint>
+   <link name="PIP_DIP_motor_6">
+      <inertial>
+         <origin xyz="-0.011349379464972083 0.007538298247408273 4.402565036993461e-06" rpy="0 0 0"/>
+         <mass value="0.11379089638693095"/>
+         <inertia ixx="1.5e-05" iyy="8e-06" izz="1.6e-05" ixy="-0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0106 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/PIP_DIP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0106 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/PIP_DIP_motor_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <link name="PIP_6">
+      <inertial>
+         <origin xyz="-0.008169135912463519 0.03727461554779869 -3.230055112268815e-15" rpy="0 0 0"/>
+         <mass value="0.05275493771588791"/>
+         <inertia ixx="1.6e-05" iyy="1.2e-05" izz="2.6e-05" ixy="0.0" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0105 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/proximal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0105 -0.0435 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/proximal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="PIP_6">
+      <parent link="MCP_motor_6"/>
+      <child link="PIP_6"/>
+      <origin xyz="-0.0001 0.0 0.0" rpy="0 0 0"/>
+   </joint>
+   <joint type="revolute" name="PIP_6_offset">
+      <parent link="PIP_6"/>
+      <child link="PIP_DIP_motor_6"/>
+      <origin xyz="0.0001 0.059 0.0" rpy="0 0 0"/>
+      <axis xyz="-1.0 -0.0 0.0"/>
+      <limit effort="0" velocity="0" lower="0" upper="2.1" />
+   </joint>
+   <link name="distal_6">
+      <inertial>
+         <origin xyz="-0.013499999999999996 0.02735449827278072 3.469446951953614e-18" rpy="0 0 0"/>
+         <mass value="0.18955441844471713"/>
+         <inertia ixx="5.4e-05" iyy="1.4e-05" izz="5.5e-05" ixy="0.0" iyz="-0.0" ixz="0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0135 -0.153 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/distal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0135 -0.153 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/distal_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <link name="DIP_6">
+      <inertial>
+         <origin xyz="-0.008827081354573583 0.03128096306151058 1.214306433183765e-17" rpy="0 0 0"/>
+         <mass value="0.041818234501644305"/>
+         <inertia ixx="9e-06" iyy="1e-05" izz="1.6e-05" ixy="1e-06" iyz="-0.0" ixz="-0.0"/>
+      </inertial>
+      <visual>
+         <origin xyz="-0.0105 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/middle_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+         <material name="silver">
+            <color rgba="0.7 0.7 0.7 1"/>
+            </material>
+      </visual>
+      <collision>
+         <origin xyz="-0.0105 -0.1025 0.008" rpy="0 0 0"/>
+         <geometry>
+            <mesh filename="package://description/meshes/long/middle_1.stl" scale="0.001 0.001 0.001"/>
+         </geometry>
+      </collision>
+   </link>
+   <joint type="fixed" name="DIP_6">
+      <parent link="PIP_DIP_motor_6"/>
+      <child link="DIP_6"/>
+      <origin xyz="-0.0001 0.0 0.0" rpy="0 0 0"/>
+   </joint>
+   <joint type="revolute" name="DIP_6_offset">
+      <parent link="DIP_6"/>
+      <child link="distal_6"/>
+      <origin xyz="0.003 0.0505 0.0" rpy="0 0 0"/>
+      <axis xyz="1.0 0.0 -0.0"/>
+      <limit effort="0" velocity="0" lower="-2.1" upper="0" />
+   </joint>
+   <material name="white">
+      <color rgba="1 1 1 1"/>
+   </material>
+</robot>

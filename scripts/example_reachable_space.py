@@ -8,8 +8,7 @@ from pyGrasp.reachable_spaces import ReachableSpace
 
 
 # Choose your example robot here
-# SELECTED_ROBOT = pgu.CH_LONG_URDF_PATH  # Find all possible robot in the utils.py file
-SELECTED_ROBOT = pgu.CH_FINGER_LONG_URDF_PATH  # Find all possible robot in the utils.py file
+SELECTED_ROBOT = pgu.CH_LONG_URDF_PATH  # Find all possible robot in the utils.py file
 
 def main() -> None:
     """Gets the model of a robot, print it and computes the reachable space for every link.
