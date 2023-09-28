@@ -9,7 +9,7 @@ import pyGrasp.utils as pgu
 from pyGrasp.robot_model import RobotModel
 
 # Choose your example robot here
-SELECTED_ROBOT = pgu.CH_FINGER_LONG_URDF_PATH
+SELECTED_ROBOT = pgu.CH_LONG_URDF_PATH
 
 
 def main() -> None:
@@ -28,12 +28,17 @@ def main() -> None:
         raise FileNotFoundError(f"URDF provided is not a valid file path: {SELECTED_ROBOT}")
 
     # Explicitly ask to learn geometries
-    robot_model.learn_geometry(verbose=True)
+    robot_model.learn_geometry(verbose=True, force_recompute=False)
 
     # Select random joints and angles for FK
     q_fk = robot_model.random_q()
-    link_goal_id = random.randint(1, robot_model.nlinks)
-    link_goal = robot_model.links[link_goal_id]
+
+    while True:
+        link_goal_id = random.randint(1, robot_model.nlinks)
+        link_goal = robot_model.links[link_goal_id]
+        if robot_model.link_has_visual(link_goal.name):
+            break
+
     theta = random.uniform(-np.pi, np.pi)
     phi = random.uniform(0, np.pi)
 
