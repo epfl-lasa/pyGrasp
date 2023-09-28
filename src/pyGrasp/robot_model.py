@@ -170,14 +170,17 @@ class RobotModel(ERobot):
                 if verbose:
                     print(f"Computing geometry model for link {key}")
 
-                cart_pts, _ = sample_surface_even(mesh, current_nb_pts, seed=0)
-                if cart_pts.shape[0] < current_nb_pts:
-                    current_nb_pts = cart_pts.shape[0]
-                    print(Fore.LIGHTRED_EX + f"WARNING: Only {current_nb_pts} points were sampled for link {key}" + Style.RESET_ALL)
+                seed = 0
+                cart_pts, _ = sample_surface_even(mesh, nb_learning_pts, seed=seed)
+                while cart_pts.shape[0] < nb_learning_pts:
+                    seed += 1
+                    nb_missing = nb_learning_pts - cart_pts.shape[0]
+                    missing_cart_pts, _ = sample_surface_even(mesh, nb_missing, seed=seed)
+                    cart_pts = np.concatenate((cart_pts, missing_cart_pts))
 
                 # Switch from tuple to array and center mesh
-                cart_pts_np = np.full((current_nb_pts, 3), np.nan)
-                for i in range(current_nb_pts):
+                cart_pts_np = np.full((nb_learning_pts, 3), np.nan)
+                for i in range(nb_learning_pts):
                     cart_pts_np[i, 0] = cart_pts[i][0] - mesh.center_mass[0]
                     cart_pts_np[i, 1] = cart_pts[i][1] - mesh.center_mass[1]
                     cart_pts_np[i, 2] = cart_pts[i][2] - mesh.center_mass[2]
@@ -265,7 +268,6 @@ class RobotModel(ERobot):
         return cart_mesh_coord_abs
 
     def link_param_to_link_abs(self, link_name: str, theta: float, phi: float) -> np.ndarray:
-
         rho = self._learned_geometries[link_name].predict(np.array([[theta, phi]]))
         sphe_coords = np.array([[theta, phi, rho[0]]])
         cart_coords = RobotModel.pol_to_cart(sphe_coords)
@@ -447,7 +449,7 @@ class RobotModel(ERobot):
                         raise ValueError(f"For now only box and mesh geometry are supported.\n Link has: {link.visual[0].geometry}")
 
                     # Scale link if needed
-                    if link.visuals[0].geometry.mesh.scale is not None:
+                    if link.visuals[0].geometry.mesh is not None and link.visuals[0].geometry.mesh.scale is not None:
                         scale_matrix = np.identity(4)
                         scale_matrix[0, 0] = link.visuals[0].geometry.mesh.scale[0]
                         scale_matrix[1, 1] = link.visuals[0].geometry.mesh.scale[1]
@@ -468,7 +470,6 @@ class RobotModel(ERobot):
                         self.sanitize_mesh(self._simple_visual_meshes[key])
                     else:
                         raise ValueError(f"Decimation ratio should be in ]0, 1] but was {decimation_ratio}")
-                    # breakpoint()
         else:
             print("Can't load visual meshes before loading visual URDF")
 
